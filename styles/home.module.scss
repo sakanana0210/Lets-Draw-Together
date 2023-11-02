@@ -1,0 +1,146 @@
+$primary: #358be0;
+$second: #fff;
+$third: #6b6b6b;
+$back: rgb(246, 246, 246);
+
+.welcome {
+    width: 100%;
+    height: 500px;
+    display: flex;
+    background-color: $back;
+    .welcomeTextContainer {
+        animation: slideInFromLeft 0.5s ease forwards;
+        z-index: 100;
+        display: block;
+        width: 400px;
+        .textContainer {
+            margin-left: 100px;
+            margin-top: 120px;
+        }
+        .title {
+            color:$primary;
+            font-size: 3.2em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            line-height:1.1em;
+        }
+        .subtitle{
+            color: $third;
+            font-size: 1.5em;
+            white-space: nowrap;
+            margin-bottom: 50px;
+        }
+        .btnStart{
+            width: 200px;
+            height: 60px;
+            color: $primary;
+            font-weight: 700;
+            font-size: 1.3em;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background-color: $second;
+            transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+            border: 2px solid $primary;
+            
+        }
+        .btnStart:hover{
+            background-color: $primary;
+            color: $second;
+            border: 2px solid $second;
+        }
+    }
+    .welcomeImageContainer{
+        animation: fadeIn 0.5s ease forwards;
+        width: 800px;
+        height: 400px;
+        margin-top: 60px;
+        position: relative;
+        .girlImage {
+            width: 250px;
+            height: 250px;
+            background-size: cover;
+            background-image: url('../public/images/landing/girl.png');
+            position: absolute;
+            z-index: 51;
+            bottom: 0;
+            left: 0;
+        }
+        .catImage {
+            width: 200px;
+            height: 200px;
+            background-size: cover;
+            background-image: url('../public/images/landing/cat.png');
+            position: absolute;
+            z-index: 50;
+            bottom: 0;
+            right: 0;
+            margin-right: 10px;
+        }
+        .creativityImage {
+            width: 300px;
+            height: 300px;
+            background-size: cover;
+            background-image: url('../public/images/landing/creativity.png');
+            position: absolute;
+            z-index: 49;
+            top: 0;
+            left: 0;
+            margin-left: 100px;
+        }
+        .drawingImage{
+            width: 180px;
+            height: 180px;
+            background-size: cover;
+            background-image: url('../public/images/landing/drawing.png');
+            position: absolute;
+            z-index: 49;
+            bottom: 0;
+            right: 0;
+            margin-right: 80px;
+            margin-bottom: 150px;
+        }
+        .magicImage {
+            width: 150px;
+            height: 150px;
+            background-size: cover;
+            background-image: url('../public/images/landing/magic.png');
+            position: absolute;
+            z-index: 49;
+            bottom: 0;
+            right: 0;
+            margin-right: 230px;
+            margin-bottom: 50px;
+        }
+        .lineImage {
+            width: 1200px;
+            height: 400px;
+            background-size: cover;
+            background-image: url('../public/images/landing/line.png');
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            right: 0;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}

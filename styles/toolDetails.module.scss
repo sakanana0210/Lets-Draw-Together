@@ -1,0 +1,49 @@
+$primary: #c4c4c4;
+$border: #666666;
+$selected: #949494;
+
+.tooldetails-container {
+    width: 200px;
+    height: calc(100% - 193px);
+    padding: 10px;
+    background-color: $primary;
+    border: $border 2px solid;
+    border-top: none;
+    .size-controller > input{
+        appearance: none;
+        width: 75%;
+        height: 10px;
+        width: 135px;
+        border: 1px black solid;
+        background-color: $selected;
+        &::-webkit-slider-thumb {
+            appearance: none;
+            width: 10px;
+            height: 18px;
+            background-color: rgba(255,255,255,1);
+            border: 1px black solid;
+        }
+                // &::-moz-range-thumb{
+    
+                // }
+                // &::-ms-thumb{
+    
+                // }
+                // &::-o-thumb{
+    
+                // }
+                // &::thumb{
+    
+                // }
+    }
+    .size-controller {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        .tool-title{
+            width: 10px;
+            font-size: 16px;
+        }
+    }
+    
+}

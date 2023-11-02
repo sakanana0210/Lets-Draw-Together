@@ -1,0 +1,44 @@
+$primary: #358be0;
+$second: #fff;
+$third: #6b6b6b;
+
+.navbarList{
+    width: 100%;
+    height: 62px;
+    background-color: $primary;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .navbarLeft{
+        margin-left: 20px;
+        .title{
+            color: $second;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    }
+    .navbarRight{
+        margin-right: 20px;
+        .itemButton{
+            margin-left: 10px;
+            padding-left: 20px;
+            padding-right: 20px;
+            height: 40px;
+            color: $primary;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background-color: $second;
+            transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+            border: 2px solid $primary;
+        }
+        .itemButton:hover{
+            background-color: $primary;
+            color: $second;
+            border: 2px solid $second;
+        }
+    }
+}
