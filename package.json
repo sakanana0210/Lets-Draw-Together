@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "canvas": "2.6.1",
     "dotenv": "^16.3.1",
     "fabric": "^5.3.0",
     "fabric-with-erasing": "^1.0.1",
