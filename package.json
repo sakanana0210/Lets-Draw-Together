@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next",
-    "build": "./setup.sh && next build"
+    "dev": "next"
   },
   "keywords": [],
   "author": "",
