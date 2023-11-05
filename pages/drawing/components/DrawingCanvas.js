@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setRGB, startPainting, stopPainting } from '../../../store/actions/actionCreators';
 import styles  from '../styles/drawingCanvas.module.scss' 
 import {rgbToHsv} from '../../../utils/rgbToHsv'
-import { fabric } from 'fabric';
+import { fabric } from 'fabric-with-erasing';
 import { AiOutlinePlusCircle, AiOutlineMinusCircle } from 'react-icons/ai';
 // import _ from 'lodash';
 
