@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "build": "your-build-command",
-    "vercel-build": "your-vercel-build-command"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "vercel-build": "next build"
   },
   "keywords": [],
   "author": "",
