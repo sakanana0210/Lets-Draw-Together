@@ -1,0 +1,17 @@
+$primary: #c4c4c4;
+$border: #666666;
+$back: rgb(246, 246, 246);
+
+.App {
+    .header {
+        background-color: $primary;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: $border 2px solid;
+    }
+    .body {
+        display: flex;
+    }
+}

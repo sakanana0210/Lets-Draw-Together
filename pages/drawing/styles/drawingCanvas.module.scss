@@ -1,0 +1,42 @@
+$primary: #c4c4c4;
+$border: #666666;
+$back: rgb(246, 246, 246);
+
+.canvasContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $back;
+    width: calc(100vw - 240px);
+    height: calc(100vh - 62px);
+    overflow: hidden;
+    position: relative;
+    .zoomPercent {
+        display: flex;
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        z-index: 50;
+        .zoomPercentDisplay {
+            width: 50px;
+            text-align: center;
+            margin: 0 2px;
+        }
+        .zoomPercentBtn {
+            border: none;
+            cursor: pointer;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+    .canvas {
+        width: auto;
+        height: auto;
+    }
+}
+
+
+

@@ -1,0 +1,36 @@
+$primary: #c4c4c4;
+$hovoer: #ededed;
+$border: #666666;
+$selected: #949494;
+
+.toolsbar-container {
+    width: 40px;
+    height: calc(100vh - 62px);
+    background-color: $primary;
+    border: $border 2px solid;
+    border-top: none;
+    border-right: none;
+    display: block;
+    .tool {
+        width: 30px;
+        height: 30px;
+        border: none;
+        margin: 3px;
+        cursor: pointer;
+        border-radius: 3px;
+        background-color: $primary;
+        .tool-img {
+            width: 80%;
+            height: 80%;
+            margin: auto;
+            background-size: cover;
+        }
+    }
+    .tool:hover{
+        background-color: $hovoer;
+    }
+    .tool.selected{
+        background-color: $selected;
+    }
+
+}

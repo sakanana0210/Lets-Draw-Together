@@ -26,31 +26,21 @@ function Navbar() {
         }
     };
 
-    if (authenticated === true) {
-        return (
-            <div className={styles.navbarList}>
-                <div className={styles.navbarLeft}>
-                    <div className={styles.title} onClick={backHome}>Let's  Draw  Together!</div>
-                </div>
-                <div className={styles.navbarRight}>
-                    <button className={styles.itemButton}>Rooms</button>
+    return (
+        <div className={styles.navbarList}>
+            <div className={styles.navbarLeft}>
+                <div className={styles.title} onClick={backHome}>Let's Draw Together!</div>
+            </div>
+            <div className={styles.navbarRight}>
+                <button className={styles.itemButton}>Rooms</button>
+                {authenticated ? (
                     <button className={styles.itemButton} onClick={handleClickSignout}>SignOut</button>
-                </div>
-            </div>
-        );
-    } else {
-        return (
-            <div className={styles.navbarList}>
-                <div className={styles.navbarLeft}>
-                    <div className={styles.title} onClick={backHome}>Let's  Draw  Together!</div>
-                </div>
-                <div className={styles.navbarRight}>
-                    <button className={styles.itemButton}>Rooms</button>
+                ) : (
                     <button className={styles.itemButton} onClick={handleClickSignup}>Login / Signup</button>
-                </div>
+                )}
             </div>
-        );
-    }
+        </div>
+    );
 }
 
 export default Navbar;
