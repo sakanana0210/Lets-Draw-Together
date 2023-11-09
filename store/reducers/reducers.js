@@ -10,6 +10,7 @@ const initialState = {
     eraserOpacity: 100,
     pencilSize: 2,
     pencilOpacity: 100,
+    newText: false
 };
 
 export const canvasReducer = (state = initialState, action) => {
@@ -27,7 +28,7 @@ switch (action.type) {
     case "START_PICK_COLOR":
     return { ...state, pickColor: true };
     case "STOP_PICK_COLOR":
-    return { ...state, pickColor: true };
+    return { ...state, pickColor: false };
     default:
     return state;
 }
@@ -56,6 +57,10 @@ switch (action.type) {
     return { ...state, pencilSize: action.payload.pencilSize };
     case "SET_PENCIL_OPACITY":
     return { ...state, pencilOpacity: action.payload.pencilOpacity };
+    case "SET_NEW_TEXT":
+        return { ...state, newText: action.payload.newText }; 
+    case "DONE_NEW_TEXT":
+        return { ...state, newText: action.payload.newText }; 
     default:
     return state;
 }

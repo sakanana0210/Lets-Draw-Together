@@ -69,3 +69,17 @@ export const setPencilOpacity = (opacity) => ({
         pencilOpacity: opacity,
     },
 });
+
+export const setNewText = () => ({
+    type: actionTypes.SET_NEW_TEXT,
+    payload: {
+        newText: true,
+    },
+});
+
+export const doneNewText = () => ({
+    type: actionTypes.DONE_NEW_TEXT,
+    payload: {
+        newText: false,
+    },
+});

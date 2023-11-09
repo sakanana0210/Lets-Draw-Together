@@ -1,5 +1,7 @@
 $primary: #c4c4c4;
+$hovoer: #ededed;
 $border: #666666;
+$selected: #949494;
 $back: rgb(246, 246, 246);
 
 .canvasContainer {
@@ -11,6 +13,64 @@ $back: rgb(246, 246, 246);
     height: calc(100vh - 62px);
     overflow: hidden;
     position: relative;
+    .layerLists {
+        position: absolute;
+        top: 0px;
+        right: 5px;
+        z-index: 40;
+        width: 180px;
+        border: 1px solid #000;
+        .btnContainer {
+            background-color: $primary;
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn {
+            text-align: center;
+            width: 28px;
+            height: 28px;
+            border: none;
+            margin: 3px;
+            cursor: pointer;
+            border-radius: 3px;
+            background-color: transparent;
+            .btnImage {
+                width: 20px;
+                height: 20px;
+                margin-top: 3px;
+            }
+        }
+        .btn:hover{
+            background-color: $hovoer;
+        }
+        .layer {
+            background-color: $primary;
+            padding: 5px 0;
+            border-top: 1px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .layerImg{
+            width: 60px;
+            height: 30px;
+            border: 1px solid rgba(0,0,0,0.5);
+            object-fit: cover;
+            background-color: #fff;
+        }
+        .layerViewContainer {
+            .layerViewBtn {
+                justify-content: center;
+                width: 100%;
+                height: 32px;
+                border: none;
+                cursor: pointer;
+                background-color: $primary;
+                display: flex;
+                align-items: center;
+            }
+        }
+    }
     .zoomPercent {
         display: flex;
         position: absolute;

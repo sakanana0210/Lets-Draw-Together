@@ -6,6 +6,7 @@ import ToolsBar from './components/ToolsBar';
 import ToolDetails from './components/ToolDetails';
 import styles from './styles/drawing.module.scss';
 import Navbar from '../../components/Navbar';
+import LayersMenu from './components/LayersMenu';
 
 function Drawing() {
     return (

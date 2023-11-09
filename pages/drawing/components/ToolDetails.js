@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setBrushSize, setBrushOpacity, setEraserSize, setPencilSize, setPencilOpacity } from '../../../store/actions/actionCreators';
+import { setBrushSize, setBrushOpacity, setEraserSize, setPencilSize, setPencilOpacity, setNewText } from '../../../store/actions/actionCreators';
 import styles  from '../styles/toolDetails.module.scss' 
 
 function ToolDetails() {
@@ -90,6 +90,18 @@ function ToolDetails() {
                         style={{ background: `linear-gradient(to right, #949494 0%, #949494 ${localEraserSize}%, white ${localEraserSize}%, white 100%)` }}
                     />
                     <span className={styles['tool-title']}>{localEraserSize}</span>
+                </div>
+            </div>
+        );
+    }else if(selectedTool === 'text'){
+        const addText = () => {
+            dispatch(setNewText());
+        };
+        return (
+            <div className={styles['tooldetails-container']}>
+                <span className={styles['tool-title']}>◆ add</span>
+                <div className={`${styles['eraser-size-controller']} ${styles['size-controller']}`}>
+                    <button onClick={addText}>New Text</button>
                 </div>
             </div>
         );
