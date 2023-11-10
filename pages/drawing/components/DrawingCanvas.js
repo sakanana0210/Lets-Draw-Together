@@ -1,11 +1,12 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setRGB, startPainting, stopPainting, doneNewText } from '../../../store/actions/actionCreators';
+import { setRGB, startPainting, stopPainting, doneNewText, doneNewImage } from '../../../store/actions/actionCreators';
 import styles  from '../styles/drawingCanvas.module.scss' 
 import {rgbToHsv} from '../../../utils/rgbToHsv'
 import { fabric } from 'fabric-with-erasing';
 import { AiOutlinePlusCircle, AiOutlineMinusCircle, AiFillEye, AiFillEyeInvisible, AiFillDelete, AiFillFileAdd, AiOutlineCaretDown, AiOutlineCaretUp } from 'react-icons/ai';
 import { selectLayer, addLayer, deleteLayer, setLayerVisibility } from '../../../store/actions/layerActionsCreator';
+import { getPriority } from 'os';
 // import _ from 'lodash';
 
 function CanvasApp() {
@@ -24,6 +25,7 @@ function CanvasApp() {
     let layers = useSelector((state) => state.layer.layers);
     layers = layers.sort((a, b) => b.id - a.id);
     const newText = useSelector((state) => state.brush.newText);
+    const newImage = useSelector((state) => state.brush.newImage);
     const [canvas, setCanvas] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [isDragging, setIsDragging] = useState(false);
@@ -32,6 +34,8 @@ function CanvasApp() {
     const [zoomPositon, setZoomPositon] = useState("center");
     const [layerView, setLayerView] = useState(true);
     const [group, setGroup] = useState(null);
+    const [textEditing, setTextEditing] = useState(null);
+    const [textLayer, settextLayer] = useState(null);
 
     useEffect(() => {
         const newCanvas  = new fabric.Canvas(canvasRef.current, {
@@ -51,21 +55,141 @@ function CanvasApp() {
     useEffect(() => {
         if (canvas) {
             handleAddLayer();
+            handleAddImage();
         }
     }, [canvas]);
 
+    const addLayerAndText = async () => {
+        let text = new fabric.IText('text', {
+            left: 50,
+            top: 50,
+            fontSize: 50,
+            fill: 'black',
+            editable: true
+        });
+        await canvas.add(text);
+        canvas.setActiveObject(text);
+        canvas.requestRenderAll();
+        canvas.getObjects().forEach((obj, index) => {
+            if(obj.type === 'i-text'){
+                obj.evented = true;
+            } else if (obj.type === 'group'){
+                obj.evented = false;
+            }
+        });
+    };
+
+    const addToGroup = () => {
+        const tempCanvas = new fabric.StaticCanvas("", {
+                width: canvas.width,
+                height: canvas.height
+            }
+        );
+        const groups = canvas.getObjects();
+        const textObj = groups.find(group => group.type === 'i-text');
+        groups.forEach(async (v) => {
+            if (v.groupId === selectedLayerId && v.type === 'group') {
+                try{
+                    await v.addWithUpdate(textObj);
+                    canvas.remove(textObj);
+                    await tempCanvas.add(v);
+                    tempCanvas.renderAll();
+                    const previewDataURL = await tempCanvas.toDataURL({
+                        format: 'jpg',
+                        quality: 0.1,
+                    });
+                    const selectedLayer = await layers.find(layer => layer.id === selectedLayerId);
+                    selectedLayer.data = previewDataURL;
+                    const string = "layerImg" + selectedLayerId;
+                    const layerImg = document.getElementById(string);
+                    layerImg.src= previewDataURL;
+                } catch (e) {
+                    console.error(e);
+                }
+
+            }
+        });
+        dispatch(doneNewText());
+        setTextEditing(false);
+    }
+
     useEffect(() => {
         if (newText === true && canvas && selectedTool === 'text') {
-            let text = new fabric.IText('text', {
-                left: 50,
-                top: 50,
-                fontSize: 16,
-                fill: 'black'
-            });
-            canvas.add(text);
-            dispatch(doneNewText());
+            const newId = handleAddLayer();
+            settextLayer(newId);
+        } else if((newText === true && canvas && selectedTool !== 'text') ){
+            addToGroup();
         }
-    }, [newText]);
+    }, [newText, selectedTool]);
+
+
+    useEffect(() => {
+        if (newText === true && canvas && selectedTool === 'text' && textEditing !== true) {
+            addLayerAndText();
+            setTextEditing(true);
+            canvas.on('selection:cleared',addToGroup);
+        }
+        return () => { if(canvas){
+            canvas.off('selection:cleared',addToGroup );
+        }
+        };
+    }, [selectedLayerId]);
+
+    useEffect(() => {
+        if (newText === true && canvas && selectedTool === 'text' && textEditing === true && selectedLayerId !== textLayer){
+            const addToGroup = () => {
+                const tempCanvas = new fabric.StaticCanvas("", {
+                        width: canvas.width,
+                        height: canvas.height
+                    }
+                );
+                const groups = canvas.getObjects();
+                const textObj = groups.find(group => group.type === 'i-text');
+                groups.forEach(async (v) => {
+                    if (v.groupId === textLayer && v.type === 'group') {
+                        try{
+                            await v.addWithUpdate(textObj);
+                            canvas.remove(textObj);
+                            await tempCanvas.add(v);
+                            tempCanvas.renderAll();
+                            const previewDataURL = await tempCanvas.toDataURL({
+                                format: 'jpg',
+                                quality: 0.1,
+                            });
+                            const selectedLayer = await layers.find(layer => layer.id === textLayer);
+                            selectedLayer.data = previewDataURL;
+                            const string = "layerImg" + textLayer;
+                            const layerImg = document.getElementById(string);
+                            layerImg.src= previewDataURL;
+                        } catch (e) {
+                            console.error(e);
+                        }
+        
+                    }
+                });
+                dispatch(doneNewText());
+                setTextEditing(false);
+            }
+            addToGroup();
+        }
+    }, [textEditing, selectedLayerId]);
+
+    useEffect(() => {
+        const addLayerAndImage = async () => {
+            if (newImage === true && canvas && selectedTool === 'image') {
+                await handleAddLayer();
+                const input = document.getElementById('upload');
+                input.click();
+                dispatch(doneNewImage());
+                canvas.selection = false;
+                canvas.getObjects().forEach((obj, index) => {
+                    obj.evented = false;
+                });
+            }
+        }
+
+        addLayerAndImage();
+    }, [newImage]);
 
     useEffect(() => {
         if (canvas) {
@@ -103,7 +227,15 @@ function CanvasApp() {
                 });
             } else if (selectedTool === 'text'){
                 canvas.isDrawingMode = false;
-                canvas.selection = true;
+                canvas.getObjects().forEach((obj, index) => {
+                    obj.evented = false;
+                });
+            } else if (selectedTool === 'image'){
+                canvas.isDrawingMode = false;
+                canvas.getObjects().forEach((obj, index) => {
+                    obj.evented = false;
+                });
+
             }
 
             const handleMouseDown = (e) => {
@@ -131,7 +263,6 @@ function CanvasApp() {
 
     useEffect(() => {
         if(canvas){
-
             const handleObjectAdded = (options) => {
                 const tempCanvas = new fabric.StaticCanvas("", {
                         width: canvas.width,
@@ -139,6 +270,7 @@ function CanvasApp() {
                     }
                 );
                 if (options.target.type === 'group') return;
+                if (options.target.type === 'i-text') return;
                 const groups = canvas.getObjects();
                 groups.forEach(async (v) => {
                     if (v.groupId === selectedLayerId && v.type === 'group') {
@@ -297,6 +429,7 @@ function CanvasApp() {
         });
         canvas.add(newGroup);
         handleSelectLayer(newId);
+        return newId;
     }
     
     const handleSelectLayer = (id) => {
@@ -338,6 +471,28 @@ function CanvasApp() {
         })
     }
 
+    const handleAddImage = () => {
+        document.getElementById('upload').addEventListener('change', (e) =>{
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgObj = new Image();
+                imgObj.src = event.target.result;
+                imgObj.onload = function() {
+                    const fabricImg = new fabric.Image(imgObj);
+                    canvas.add(fabricImg);
+                };
+            };
+            try{
+                reader.readAsDataURL(file);
+            }catch {
+                console.error("error");
+            }
+            
+        });
+    }
+    
+
     return <div className={styles.canvasContainer} onWheel={handleWheel} ref={canvasContainerRef} 
                 onMouseDown={handleMouseDownForDrag}onMouseMove={handleMouseMoveForDrag} onMouseUp={handleMouseUpForDrag}>
                     <div className={styles.layerLists}>
@@ -359,18 +514,20 @@ function CanvasApp() {
                                     {layer.visible ? <AiFillEye className={styles.btnImage}/> : <AiFillEyeInvisible className={styles.btnImage}/>}
                                 </button>
                                 <img className={styles.layerImg} src={layer.data} id={'layerImg' + layer.id}/>
-                                <span onClick={() => handleSelectLayer(layer.id)}>{layer.name}</span>
+                                <span  className={styles.layerSelector} onClick={() => handleSelectLayer(layer.id)}>{layer.name}</span>
                             </div>
                         ))}
                         <div className={styles.layerViewContainer} >
                             <button className={styles.layerViewBtn} onClick={() => setLayerView(!layerView)} 
-                                style={{ borderTop: layerView ? '1px solid #fff' : 'none'}}
+                                style={{ borderTop: layerView ? '1px solid #000' : 'none'}}
                             >
                                 {layerView ? <AiOutlineCaretUp size={24} /> : (<><span>Layer</span><AiOutlineCaretDown size={24} /></>)}
                             </button>
                         </div>
                     </div>
-
+                {/**/}
+                <input style={{display: 'none'}} type="file" id="upload" accept="image/*" />
+                {/**/}
                 <div style={{ transform: `scale(${zoom}) translate(${dragPosition.x}px, ${dragPosition.y}px)`, transformOrigin: `${zoomPositon}` }}>
                     <canvas className={styles.canvas} ref={canvasRef}  />
                 </div>

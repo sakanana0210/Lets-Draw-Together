@@ -5,6 +5,7 @@ import styles  from '../styles/toolsBar.module.scss'
 import { FaRegHandPaper } from 'react-icons/fa';
 import { BsArrowsMove, BsFillEraserFill } from 'react-icons/bs';
 import { PiTextTBold} from 'react-icons/pi';
+import { AiFillFileImage} from 'react-icons/ai';
 import { HiMiniPaintBrush, HiPencil, HiEyeDropper} from 'react-icons/hi2';
 
 
@@ -17,6 +18,7 @@ function ToolsBar() {
     const eyedropperRef = useRef(null);
     const eraserRef = useRef(null);
     const textRef = useRef(null);
+    const imageRef = useRef(null);
 
     const handleToolClick = (tool) => {
         dispatch(setSelectedTool(tool));
@@ -29,7 +31,8 @@ function ToolsBar() {
             pencil: pencilRef,
             eyedropper: eyedropperRef,
             eraser: eraserRef,
-            text: textRef
+            text: textRef,
+            image: imageRef
         };
         Object.values(toolRefs).forEach((ref) => {
             ref.current.classList.remove(styles.selected);
@@ -58,6 +61,9 @@ function ToolsBar() {
             </button>
             <button className={styles.tool} ref={textRef} onClick={() => handleToolClick('text')}>
                 <div className={`${styles['tool-img']}`}><PiTextTBold size={24} /></div>
+            </button>
+            <button className={styles.tool} ref={imageRef} onClick={() => handleToolClick('image')}>
+                <div className={`${styles['tool-img']}`}><AiFillFileImage size={24} /></div>
             </button>
         </div>
     );

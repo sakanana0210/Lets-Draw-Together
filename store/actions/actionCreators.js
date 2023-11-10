@@ -83,3 +83,17 @@ export const doneNewText = () => ({
         newText: false,
     },
 });
+
+export const setNewImage = () => ({
+    type: actionTypes.SET_NEW_IMAGE,
+    payload: {
+        newImage: true,
+    },
+});
+
+export const doneNewImage= () => ({
+    type: actionTypes.DONE_NEW_IMAGE,
+    payload: {
+        newImage: false,
+    },
+});

@@ -10,7 +10,8 @@ const initialState = {
     eraserOpacity: 100,
     pencilSize: 2,
     pencilOpacity: 100,
-    newText: false
+    newText: false,
+    newImage: false
 };
 
 export const canvasReducer = (state = initialState, action) => {
@@ -61,6 +62,10 @@ switch (action.type) {
         return { ...state, newText: action.payload.newText }; 
     case "DONE_NEW_TEXT":
         return { ...state, newText: action.payload.newText }; 
+    case "SET_NEW_IMAGE":
+    return { ...state, newImage: action.payload.newImage }; 
+    case "DONE_NEW_IMAGE":
+        return { ...state, newImage: action.payload.newImage }; 
     default:
     return state;
 }

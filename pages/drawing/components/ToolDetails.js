@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setBrushSize, setBrushOpacity, setEraserSize, setPencilSize, setPencilOpacity, setNewText } from '../../../store/actions/actionCreators';
+import { setBrushSize, setBrushOpacity, setEraserSize, setPencilSize, setPencilOpacity, setNewText, setNewImage } from '../../../store/actions/actionCreators';
 import styles  from '../styles/toolDetails.module.scss' 
 
 function ToolDetails() {
@@ -100,8 +100,20 @@ function ToolDetails() {
         return (
             <div className={styles['tooldetails-container']}>
                 <span className={styles['tool-title']}>◆ add</span>
-                <div className={`${styles['eraser-size-controller']} ${styles['size-controller']}`}>
+                <div className={`${styles['size-controller']}`}>
                     <button onClick={addText}>New Text</button>
+                </div>
+            </div>
+        );
+    }else if(selectedTool === 'image'){
+        const addImage = () => {
+            dispatch(setNewImage());
+        };
+        return (
+            <div className={styles['tooldetails-container']}>
+                <span className={styles['tool-title']}>◆ add</span>
+                <div className={`${styles['size-controller']}`}>
+                    <button onClick={addImage}>New Image</button>
                 </div>
             </div>
         );
