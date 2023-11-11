@@ -59,12 +59,13 @@ function CanvasApp() {
         }
     }, [canvas]);
 
-    const addLayerAndText = async () => {
+    const addText = async () => {
+        const colorString = `rgb(${selectedRGB[0]}, ${selectedRGB[1]}, ${selectedRGB[2]})`;
         let text = new fabric.IText('text', {
             left: 50,
             top: 50,
             fontSize: 50,
-            fill: 'black',
+            fill: colorString,
             editable: true
         });
         await canvas.add(text);
@@ -125,7 +126,7 @@ function CanvasApp() {
 
     useEffect(() => {
         if (newText === true && canvas && selectedTool === 'text' && textEditing !== true) {
-            addLayerAndText();
+            addText();
             setTextEditing(true);
             canvas.on('selection:cleared',addToGroup);
         }
@@ -133,7 +134,7 @@ function CanvasApp() {
             canvas.off('selection:cleared',addToGroup );
         }
         };
-    }, [selectedLayerId]);
+    }, [selectedLayerId, selectedRGB]);
 
     useEffect(() => {
         if (newText === true && canvas && selectedTool === 'text' && textEditing === true && selectedLayerId !== textLayer){
