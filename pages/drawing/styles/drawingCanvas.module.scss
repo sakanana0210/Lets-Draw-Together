@@ -13,6 +13,25 @@ $back: rgb(246, 246, 246);
     height: calc(100vh - 62px);
     overflow: hidden;
     position: relative;
+    .upperEditList {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        z-index: 50;
+        .btnDownload {
+            text-align: center;
+            height: 30px;
+            width: 80px;
+            border: solid 1px #000;
+            margin: 3px;
+            cursor: pointer;
+            border-radius: 3px;
+            background-color: $primary;
+        }
+        .btnDownload:hover{
+            background-color: $hovoer;
+        }
+    }
     .layerLists {
         position: absolute;
         top: 0px;

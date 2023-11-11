@@ -5,7 +5,8 @@ import styles  from '../styles/toolsBar.module.scss'
 import { FaRegHandPaper } from 'react-icons/fa';
 import { BsArrowsMove, BsFillEraserFill } from 'react-icons/bs';
 import { PiTextTBold} from 'react-icons/pi';
-import { AiFillFileImage} from 'react-icons/ai';
+import { AiFillFileImage} from 'react-icons/ai'; 
+import { FiMove} from 'react-icons/fi';
 import { HiMiniPaintBrush, HiPencil, HiEyeDropper} from 'react-icons/hi2';
 
 
@@ -19,6 +20,7 @@ function ToolsBar() {
     const eraserRef = useRef(null);
     const textRef = useRef(null);
     const imageRef = useRef(null);
+    const layerMoveRef = useRef(null);
 
     const handleToolClick = (tool) => {
         dispatch(setSelectedTool(tool));
@@ -32,7 +34,8 @@ function ToolsBar() {
             eyedropper: eyedropperRef,
             eraser: eraserRef,
             text: textRef,
-            image: imageRef
+            image: imageRef,
+            layermove: layerMoveRef
         };
         Object.values(toolRefs).forEach((ref) => {
             ref.current.classList.remove(styles.selected);
@@ -46,6 +49,9 @@ function ToolsBar() {
         <div className={styles['toolsbar-container']}>
             <button className={styles.tool} ref={moveRef} onClick={() => handleToolClick('move')}>
                 <div className={`${styles['tool-img']}`}><FaRegHandPaper size={22} /></div>
+            </button>
+            <button className={styles.tool} ref={layerMoveRef} onClick={() => handleToolClick('layermove')}>
+                <div className={`${styles['tool-img']}`}><FiMove size={24} /></div>
             </button>
             <button className={styles.tool} ref={brushRef} onClick={() => handleToolClick('brush')}>
                 <div className={`${styles['tool-img']}`}><HiMiniPaintBrush size={24} /></div> 
@@ -65,6 +71,7 @@ function ToolsBar() {
             <button className={styles.tool} ref={imageRef} onClick={() => handleToolClick('image')}>
                 <div className={`${styles['tool-img']}`}><AiFillFileImage size={24} /></div>
             </button>
+
         </div>
     );
 }

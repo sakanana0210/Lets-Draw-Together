@@ -11,7 +11,7 @@ function ToolDetails() {
     const selectedEraserSize = useSelector((state) => state.brush.eraserSize);
     const selectedPencilSize = useSelector((state) => state.brush.pencilSize);
     const selectedPencilOpacity = useSelector((state) => state.brush.pencilOpacity);
-    const [localBrushSize, setLocalBrushSize] = useState(selectedBrushSize); // 本地狀態
+    const [localBrushSize, setLocalBrushSize] = useState(selectedBrushSize);
     const [localBrushOpacity , setLocalBrushOpacity] = useState(selectedBrushOpacity);
     const [localEraserSize, setLocalEraserSize] = useState(selectedEraserSize);
     const [localPencilSize, setLocalPencilSize] = useState(selectedPencilSize);

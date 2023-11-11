@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setRGB, startPainting, stopPainting, doneNewText, doneNewImage } from '../../../store/actions/actionCreators';
+import { setRGB, startPainting, stopPainting, doneNewText, doneNewImage, setSelectedTool, setBrushSize, setBrushOpacity } from '../../../store/actions/actionCreators';
 import styles  from '../styles/drawingCanvas.module.scss' 
 import {rgbToHsv} from '../../../utils/rgbToHsv'
 import { fabric } from 'fabric-with-erasing';
@@ -47,6 +47,12 @@ function CanvasApp() {
         });
 
         setCanvas(newCanvas);
+        dispatch(selectLayer(1));
+        dispatch(setSelectedTool('brush'));
+        dispatch(setRGB([0,0,0], [0,0,0]));
+        dispatch(setBrushSize(2));
+        dispatch(setBrushOpacity(100));
+
         return () => {
             newCanvas.dispose();
         };
@@ -116,6 +122,7 @@ function CanvasApp() {
 
     useEffect(() => {
         if (newText === true && canvas && selectedTool === 'text') {
+            canvas.isDrawingMode = false;
             const newId = handleAddLayer();
             settextLayer(newId);
         } else if((newText === true && canvas && selectedTool !== 'text') ){
@@ -128,6 +135,16 @@ function CanvasApp() {
         if (newText === true && canvas && selectedTool === 'text' && textEditing !== true) {
             addText();
             setTextEditing(true);
+            canvas.on('selection:cleared',addToGroup);
+        } else if (newText === true && canvas && selectedTool === 'text' && textEditing === true){
+            const newColorString = `rgb(${selectedRGB[0]}, ${selectedRGB[1]}, ${selectedRGB[2]})`;
+            const objects = canvas.getObjects();
+            objects.forEach((obj) => {
+                if (obj.type === 'i-text') {
+                    obj.set({ fill: newColorString });
+                }
+            });
+            canvas.renderAll();
             canvas.on('selection:cleared',addToGroup);
         }
         return () => { if(canvas){
@@ -343,7 +360,74 @@ function CanvasApp() {
                 canvas.off('mouse:up', handleEraserUp);
             }
         };
-    }, [selectedLayerId, selectedTool]);
+    }, [selectedLayerId, selectedTool, layers]);
+
+    useEffect(() => {
+        if (canvas) {
+            layers.forEach((layer) => {
+                if(layer.id === selectedLayerId && layer.visible === false){
+                    canvas.isDrawingMode = false;
+                    canvas.selection = false;
+                    canvas.getObjects().forEach((obj, index) => {
+                        obj.evented = false;
+                    });
+                }else if (layer.id === selectedLayerId && layer.visible === true && (selectedTool === 'brush' || selectedTool === 'pencil' || selectedTool === 'eraser')){
+                    canvas.isDrawingMode = true;
+                }else if (layer.id === selectedLayerId && layer.visible === true && (selectedTool === 'layermove')){
+                    canvas.isDrawingMode = false;
+                    canvas.selection = false;
+                    const objects = canvas.getObjects();
+                    objects.forEach((obj) => {
+                        if (obj.type === 'group' && obj.groupId === selectedLayerId) {
+                            obj.evented = true;
+                        } else {
+                            obj.evented = false;
+                        }
+                    });
+                    canvas.renderAll();
+                }
+            });
+            const handleSelectionClear = () => {
+                if (selectedTool === 'layermove'){
+                    const tempCanvas = new fabric.StaticCanvas(null, {
+                        width: canvas.width,
+                        height: canvas.height
+                    });
+    
+                    const string = "layerImg" + selectedLayerId;
+                    const layerImg = document.getElementById(string);
+                    const src = layerImg.getAttribute('src');
+                    fabric.Image.fromURL(src, function(img) {
+                        const groups = canvas.getObjects();
+                        groups.forEach(async (v) => {
+                            if (v.groupId === selectedLayerId && v.type === 'group') {
+                                await tempCanvas.add(v);
+                                if(tempCanvas){
+                                    const previewDataURL = tempCanvas.toDataURL({
+                                        format: 'jpg',
+                                        quality: 0.1,
+                                    });
+                                    const selectedLayer = layers.find(layer => layer.id === selectedLayerId);
+                                    selectedLayer.data = previewDataURL;
+                                    layerImg.src = previewDataURL;
+                                }
+                            }
+                        })
+                    })
+                } else {
+                    return;
+                }
+            }
+            canvas.on('selection:cleared', handleSelectionClear);
+        } 
+        
+        return () => {
+            if (canvas) {
+                canvas.off('selection:cleared', handleSelectionClear);
+            }
+        };
+
+    }, [layers, selectedLayerId, selectedTool]);
 
     const handleWheel = (e) => {
         const currentZoom = zoom;
@@ -493,9 +577,21 @@ function CanvasApp() {
         });
     }
     
+    const downloadCanvas = () => {
+        const dataURL = canvas.toDataURL({ format: 'png', quality: 0.8 });
+        const downloadLink = document.createElement('a');
+        downloadLink.href = dataURL;
+        downloadLink.download = 'canvas_image.png';
+        downloadLink.click();
+    }
 
     return <div className={styles.canvasContainer} onWheel={handleWheel} ref={canvasContainerRef} 
                 onMouseDown={handleMouseDownForDrag}onMouseMove={handleMouseMoveForDrag} onMouseUp={handleMouseUpForDrag}>
+                    <div className={styles.upperEditList}>
+                        <div className={styles.saveBtnContainer}>
+                            <button className={styles.btnDownload} onClick={downloadCanvas}>Download Canvas</button>
+                        </div>
+                    </div>
                     <div className={styles.layerLists}>
                         <div className={styles.btnContainer} style={{ display: layerView ? 'flex' : 'none' }}>
                             <button className={styles.btn} onClick={handleAddLayer}>
@@ -526,9 +622,8 @@ function CanvasApp() {
                             </button>
                         </div>
                     </div>
-                {/**/}
                 <input style={{display: 'none'}} type="file" id="upload" accept="image/*" />
-                {/**/}
+                
                 <div style={{ transform: `scale(${zoom}) translate(${dragPosition.x}px, ${dragPosition.y}px)`, transformOrigin: `${zoomPositon}` }}>
                     <canvas className={styles.canvas} ref={canvasRef}  />
                 </div>
@@ -541,6 +636,8 @@ function CanvasApp() {
                     <button>整個畫布預覽:</button>
                     <img src="preview" />
                 </div> */}
+                {/**/}
+                {/**/}
             </div>
 }
 export default CanvasApp;
