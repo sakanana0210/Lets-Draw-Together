@@ -60,8 +60,9 @@ function CanvasApp() {
 
     useEffect(() => {
         if (canvas) {
-            handleAddLayer();
             handleAddImage();
+        } if (canvas && !layers[0]){
+            handleAddLayer();
         }
     }, [canvas]);
 
