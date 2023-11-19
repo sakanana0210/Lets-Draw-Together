@@ -1,3 +1,6 @@
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
 const initialState = {
     isAuthenticated: false,
     errorMessage: null,
@@ -14,7 +17,7 @@ export const authReducer = (state = initialState, action) => {
                 isAuthenticated: true,
                 errorMessage: null,
                 loginUserUid: action.payload.loginUserUid,
-                loginUserName: null,
+                loginUserName: action.payload.loginUserName,
                 loginFrom: action.payload.loginFrom
             };
 

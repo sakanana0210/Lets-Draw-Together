@@ -17,22 +17,6 @@ const Signin = () => {
     useEffect(() => { 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user && user.displayName) {
-                // const setGoogleDoc = async() => {
-                //     const uid = user.uid;
-                //     const usersCollection = collection(db, 'users');
-                //     const userDocRef = doc(usersCollection, uid);
-                //     const docSnapshot = await getDoc(userDocRef);
-                //     if (docSnapshot.exists()) {
-                //     } else {
-                //         await setDoc(userDocRef, {
-                //             uid: uid,
-                //             name: user.displayName,
-                //             email: user.email
-                //         });
-                //     }
-                //     router.push('/');
-                // }
-                // setGoogleDoc();
                 dispatch(loginWithGoogle());
                 router.push('/');
             } else if (user){

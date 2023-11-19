@@ -3,7 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import styles from '../styles/signup.module.scss'; 
 import Navbar from '../components/Navbar';
-import { register } from '../store/actions/authActionsCreator';
+import { register } from '../store/actions/authActionsCreator.js';
+import { compile } from 'sass';
+import { db, auth, setLocalPersistence} from '../firebase.js';
+import { doc, collection, addDoc, setDoc} from "firebase/firestore";
 
 const Signup = () => {
     const [userName, setUserName] = useState('');
@@ -23,8 +26,12 @@ const Signup = () => {
         router.push('/signin');
     };
 
-    const handleSignup = () => {
-        dispatch(register(email, password, userName));
+    const handleSignup = async () => {
+        try {
+            dispatch(register(email, password, userName));
+        } catch (error) {
+            console.error('註冊失敗', error.code, error.message);
+        }
     };
 
     return (

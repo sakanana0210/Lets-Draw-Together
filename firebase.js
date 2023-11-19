@@ -5,13 +5,12 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth,setPersistence, browserLocalPersistence } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: "465467127019",
-    storageBucket:  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_APP_MEASUREMENT_ID
+    apiKey: "AIzaSyCa498gniDpl8F3J6LmJ_1VMlAsea7FndI",
+    authDomain: "let-s-draw-together--new.firebaseapp.com",
+    projectId: "let-s-draw-together--new",
+    storageBucket: "let-s-draw-together--new.appspot.com",
+    messagingSenderId: "741132498109",
+    appId: "1:741132498109:web:6235891a52a0d6da92f3d4"
 };
 
 const app = initializeApp(firebaseConfig);

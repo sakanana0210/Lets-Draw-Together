@@ -20,7 +20,7 @@ $back: rgb(246, 246, 246);
         z-index: 50;
         .btnDownload {
             text-align: center;
-            height: 30px;
+            height: 50px;
             width: 80px;
             border: solid 1px #000;
             margin: 3px;
@@ -38,6 +38,7 @@ $back: rgb(246, 246, 246);
         right: 5px;
         z-index: 40;
         width: 180px;
+
         border: 1px solid #000;
         .btnContainer {
             background-color: $primary;

@@ -6,7 +6,7 @@ const Home = () => {
     const router = useRouter();
 
     const handleClick = () => {
-        router.push('/drawing');
+        router.push('/rooms');
     };
 
     return (

@@ -25,3 +25,20 @@ export const setLayerVisibility = (layerId, isVisible) => {
         }
     };
 };
+
+export const setExistedLayer = (layers) => {
+    return {
+        type: "SET_EXISTED_LAYER",
+        payload: layers
+    };
+};
+
+export const setLayerIndex = (zIndex, changeZindex) => {
+    return {
+        type: "SET_LAYER_ZINDEX_CHANGE",
+        payload: {
+            zIndex,
+            changeZindex
+        }
+    };
+};
