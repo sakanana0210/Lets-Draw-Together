@@ -7,8 +7,9 @@ export const selectLayer = (id) => ({
     payload: id
 });
 
-export const addLayer = () => ({
-    type: ADD_LAYER
+export const addLayer = (ownerId) => ({
+    type: ADD_LAYER,
+    payload: ownerId
 });
 
 export const deleteLayer = (id) => ({

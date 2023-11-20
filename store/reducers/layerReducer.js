@@ -17,11 +17,13 @@ const calculateNewLayerId = (layers) => {
 export const layerReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'ADD_LAYER':
+            const ownerId = action.payload;
             const newLayer = {
                 id: calculateNewLayerId(state.layers),
                 name: `Layer ${calculateNewLayerId(state.layers)}`,
                 visible: true,
-                zIndex: (calculateNewLayerId(state.layers) - 1)
+                zIndex: (calculateNewLayerId(state.layers) - 1),
+                owner: ownerId
             };
             
             if (!Array.isArray(state.layers)) {

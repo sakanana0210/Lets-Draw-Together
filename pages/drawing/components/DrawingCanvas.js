@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { setRGB, startPainting, stopPainting, doneNewText, doneNewImage, setSelectedTool, setBrushSize, setBrushOpacity } from '../../../store/actions/actionCreators';
+import { setRGB, setroomId, startPainting, stopPainting, doneNewText, doneNewImage, setSelectedTool, setBrushSize, setBrushOpacity } from '../../../store/actions/actionCreators';
 import styles  from '../styles/drawingCanvas.module.scss' 
 import {rgbToHsv} from '../../../utils/rgbToHsv'
 import { fabric } from 'fabric-with-erasing';
@@ -42,6 +42,7 @@ function CanvasApp() {
     const [groupToCanvas, setGroupToCanvas] = useState(false);
     const [newCanvas1Group, setNewCanvas1Group] = useState(false);
     const [loadCanvasDone, setLoadCanvasDone] = useState(false);
+    const [layerEdit, setLayerEdit] = useState(false);
     let layers = useSelector((state) => state.layer.layers);
     layers = layers.sort((a, b) => b.zIndex - a.zIndex);
     const router = useRouter();
@@ -53,6 +54,7 @@ function CanvasApp() {
     // enter room load json canvas or create json
     useEffect(() => {
         if(roomId){
+            dispatch(setroomId(roomId));
             const setRoomDoc = async() => {
                 const roomsCollection = collection(db, 'rooms');
                 const roomDocumentRef = doc(roomsCollection, roomId);
@@ -84,7 +86,8 @@ function CanvasApp() {
                                     id: object.groupId,
                                     name: `Layer ${object.groupId}`,
                                     visible: true,
-                                    zIndex: object.zIndex
+                                    zIndex: object.zIndex,
+                                    owner: object.owner
                                 }
                                 object.visible = true;
                                 layerList.push(NewLayer);
@@ -100,7 +103,8 @@ function CanvasApp() {
                                 id: 1,
                                 name: `Layer 1`,
                                 visible: true,
-                                zIndex: 0
+                                zIndex: 0,
+                                owner: userUid
                             }
                             layerList.push(NewLayer);
                             setNewCanvas1Group(true);
@@ -171,7 +175,8 @@ function CanvasApp() {
                             id: 1,
                             name: `Layer 1`,
                             visible: true,
-                            zIndex: 0
+                            zIndex: 0,
+                            owner: userUid
                         }
                         layerList.push(NewLayer);
                         dispatch(setExistedLayer(layerList));
@@ -205,6 +210,7 @@ function CanvasApp() {
                 fill: 'transparent',
                 groupId: 1,
                 zIndex: 0,
+                owner: userUid,
                 visible: true,
                 erasable: true
             });
@@ -235,7 +241,7 @@ function CanvasApp() {
                     const querySnapshot = await getDocs(canvasInfoCollection);
                     if (querySnapshot.docs[0]) {
                             const firstDocumentRef = querySnapshot.docs[0].ref;
-                            const canvasJsonObj = canvas.toJSON(['groupId', 'zIndex']);
+                            const canvasJsonObj = canvas.toJSON(['groupId', 'zIndex', 'owner']);
                             const canvasJson = JSON.stringify(canvasJsonObj);
                         if (firstDocumentRef) {
                             updateDoc(firstDocumentRef, { canvasJson, userUid });
@@ -304,7 +310,8 @@ function CanvasApp() {
                             id: object.groupId,
                             name: `Layer ${object.groupId}`,
                             visible: foundLayer ? foundLayer.visible : true,
-                            zIndex: object.zIndex
+                            zIndex: object.zIndex,
+                            owner: object.owner
                         }
                         layerList.push(NewLayer);
                     }
@@ -452,6 +459,7 @@ function CanvasApp() {
             addToGroup();
         }
     }, [newText, selectedTool]);
+
     useEffect(() => {
         if (newText === true && canvas && selectedTool === 'text' && textEditing !== true) {
             addText();
@@ -473,6 +481,7 @@ function CanvasApp() {
         }
         };
     }, [selectedLayerId, selectedRGB]);
+
     useEffect(() => {
         if (newText === true && canvas && selectedTool === 'text' && textEditing === true && selectedLayerId !== textLayer){
             const addToGroup = () => {
@@ -511,6 +520,7 @@ function CanvasApp() {
             }
             addToGroup();
         }
+
     }, [textEditing, selectedLayerId]);
     // 
 
@@ -536,14 +546,20 @@ function CanvasApp() {
     // select tool effect
     useEffect(() => {
         if (canvas) {
-            if (selectedTool === 'brush') {
+            if (layerEdit === false){
+                canvas.isDrawingMode = false;
+                canvas.selection = false;
+                canvas.getObjects().forEach((obj) => {
+                    obj.evented = false;
+                });
+            }else if (selectedTool === 'brush' && layerEdit === true) {
                 canvas.isDrawingMode = true;
                 const colorString = `rgba(${selectedRGB[0]}, ${selectedRGB[1]}, ${selectedRGB[2]}, ${selectedBrushOpacity / 100})`;
                 const PencilBrush = new fabric.PencilBrush(canvas);
                 canvas.freeDrawingBrush = PencilBrush;
                 PencilBrush.color = colorString;;
                 PencilBrush.width = selectedBrushSize;
-            } else if (selectedTool === 'pencil'){
+            } else if (selectedTool === 'pencil' && layerEdit === true){
                 canvas.isDrawingMode = true;
                 const colorString = `rgba(${selectedRGB[0]}, ${selectedRGB[1]}, ${selectedRGB[2]}, ${selectedPencilOpacity / 100})`;
                 const PencilBrush = new fabric.PencilBrush(canvas);
@@ -557,23 +573,23 @@ function CanvasApp() {
                 canvas.getObjects().forEach((obj, index) => {
                     obj.evented = false;
                 });
-            } else if (selectedTool === 'eraser'){
+            } else if (selectedTool === 'eraser' && layerEdit === true){
                 canvas.isDrawingMode = true;
                 const EraserBrush = new fabric.EraserBrush(canvas)
                 canvas.freeDrawingBrush = EraserBrush;
                 EraserBrush.width = selectedEraserSize;
-            } else if (selectedTool === 'move'){
+            } else if (selectedTool === 'move' && layerEdit === true){
                 canvas.isDrawingMode = false;
                 // canvasContainerRef.current.style.cursor = "grab";
                 canvas.getObjects().forEach((obj, index) => {
                     obj.evented = false;
                 });
-            } else if (selectedTool === 'text'){
+            } else if (selectedTool === 'text' && layerEdit === true){
                 canvas.isDrawingMode = false;
                 canvas.getObjects().forEach((obj, index) => {
                     obj.evented = false;
                 });
-            } else if (selectedTool === 'image'){
+            } else if (selectedTool === 'image' && layerEdit === true){
                 canvas.isDrawingMode = false;
                 canvas.getObjects().forEach((obj, index) => {
                     obj.evented = false;
@@ -602,7 +618,7 @@ function CanvasApp() {
             };
 
         }   
-    }, [selectedTool,selectedPencilOpacity, selectedPencilSize, selectedBrushSize, selectedBrushOpacity, selectedRGB, selectedEraserSize]);
+    }, [layerEdit, selectedTool,selectedPencilOpacity, selectedPencilSize, selectedBrushSize, selectedBrushOpacity, selectedRGB, selectedEraserSize]);
 
     //！！！layers
     useEffect(() => {
@@ -777,6 +793,40 @@ function CanvasApp() {
 
     }, [layers, selectedLayerId, selectedTool]);
 
+    // only layer owner can edit
+    useEffect(()=>{
+        if(canvas){
+            const layer = layers.find(layer => layer.id === selectedLayerId);
+            const layerOwner = layer.owner;
+            if(layerOwner === userUid){
+                setLayerEdit(true);
+            } else {
+                setLayerEdit(false);
+            }
+        }
+    }, [selectedLayerId])
+
+    useEffect(()=>{
+        if(canvas){
+            if (layerEdit === false) {
+                canvas.isDrawingMode = false;
+                canvas.selection = false; 
+                canvas.forEachObject(obj => {
+                    obj.set({
+                        selectable: false,
+                        evented: false
+                    });
+                });
+            } else {
+                canvas.forEachObject(obj => {
+                    obj.set({
+                        evented: true
+                    });
+                });
+            }
+        }
+    }, [layerEdit])
+
     // whole canvas zoom up down
     const handleWheel = (e) => {
         const currentZoom = zoom;
@@ -842,7 +892,7 @@ function CanvasApp() {
 
     // Layers
     const handleAddLayer = async() => {
-        dispatch(addLayer());
+        dispatch(addLayer(userUid));
         let newId;
         const calculateNewLayerId = (layers) => {
             if (!Array.isArray(layers) || layers.length === 0) {
@@ -861,6 +911,7 @@ function CanvasApp() {
             fill: 'transparent',
             groupId: newId,
             zIndex: (newId - 1),
+            owner: userUid,
             visible: true,
             erasable: true
         });
@@ -893,67 +944,73 @@ function CanvasApp() {
     }
     
     const handleDeleteLayer = async (id) => {
-        const updatedLayers = layers.filter(layer => layer.id !== id);
-        const updatedSelectedLayer = updatedLayers[0];
-        dispatch(deleteLayer(id));
-        dispatch(selectLayer(updatedSelectedLayer.id));
-
-        const groups = canvas.getObjects();
-        groups.forEach(v => {
-            if (v.groupId === id && v.type === 'group') {
-                canvas.remove(v);
-                canvas.renderAll();
-            }
-            if (v.groupId === updatedSelectedLayer.id && v.type === 'group'){
-                setGroup(v);
-            }
-        })
-        console.log('setGroupToCanvas');
-        setGroupToCanvas(true);
+        if(layerEdit === true){
+            const updatedLayers = layers.filter(layer => layer.id !== id);
+            const updatedSelectedLayer = updatedLayers[0];
+            dispatch(deleteLayer(id));
+            dispatch(selectLayer(updatedSelectedLayer.id));
+    
+            const groups = canvas.getObjects();
+            groups.forEach(v => {
+                if (v.groupId === id && v.type === 'group') {
+                    canvas.remove(v);
+                    canvas.renderAll();
+                }
+                if (v.groupId === updatedSelectedLayer.id && v.type === 'group'){
+                    setGroup(v);
+                }
+            })
+            console.log('setGroupToCanvas');
+            setGroupToCanvas(true);
+        }
     }
 
     const handleLayerMoveDown = (selectedLayerId) => {
-        const layer = layers.find((layer) => layer.id === selectedLayerId);
-        const layerZindex = layer.zIndex;
-        const objs = canvas.getObjects();
-        const changeLayerZindex = layerZindex - 1; 
-        const changeLayer = objs.find((obj) => obj.zIndex === changeLayerZindex);
-        if(changeLayer && changeLayer.zIndex !== 0){
-            dispatch(setLayerIndex(layerZindex, changeLayerZindex));
-            objs.forEach((obj) => {
-                if(obj.type === 'group' && obj.zIndex === layerZindex && obj.groupId === selectedLayerId){
-                    canvas.sendBackwards(obj);
-                    obj.zIndex = changeLayerZindex;
-                } 
-                else if (obj.type === 'group' && obj.zIndex === changeLayerZindex){
-                    obj.zIndex = layerZindex;
-                }
-            })
+        if(layerEdit === true){
+            const layer = layers.find((layer) => layer.id === selectedLayerId);
+            const layerZindex = layer.zIndex;
+            const objs = canvas.getObjects();
+            const changeLayerZindex = layerZindex - 1; 
+            const changeLayer = objs.find((obj) => obj.zIndex === changeLayerZindex);
+            if(changeLayer && changeLayer.zIndex !== 0){
+                dispatch(setLayerIndex(layerZindex, changeLayerZindex));
+                objs.forEach((obj) => {
+                    if(obj.type === 'group' && obj.zIndex === layerZindex && obj.groupId === selectedLayerId){
+                        canvas.sendBackwards(obj);
+                        obj.zIndex = changeLayerZindex;
+                    } 
+                    else if (obj.type === 'group' && obj.zIndex === changeLayerZindex){
+                        obj.zIndex = layerZindex;
+                    }
+                })
+            }
+            setGroupToCanvas(true);
         }
-        setGroupToCanvas(true);
     }
 
     const handleLayerMoveUp = (selectedLayerId) => {
-        const layer = layers.find((layer) => layer.id === selectedLayerId);
-        const layerZindex = layer.zIndex;
-        const objs = canvas.getObjects();
-        const changeLayerZindex = layerZindex + 1; 
-        const changeLayer = objs.find((obj) => obj.zIndex === changeLayerZindex);
-        if(changeLayer){
-            dispatch(setLayerIndex(layerZindex, changeLayerZindex));
-            objs.forEach((obj) => {
-                if(obj.type === 'group' && obj.groupId === selectedLayerId){
-                    canvas.bringForward(obj);
-                    obj.zIndex = changeLayerZindex;
-                    console.log( obj.groupId , ' move to ', changeLayerZindex );
-                } 
-                else if (obj.type === 'group' && obj.zIndex === changeLayerZindex){
-                    obj.zIndex = layerZindex;
-                    console.log( obj.groupId , ' move to ', layerZindex );
-                }
-            })
+        if(layerEdit === true){
+            const layer = layers.find((layer) => layer.id === selectedLayerId);
+            const layerZindex = layer.zIndex;
+            const objs = canvas.getObjects();
+            const changeLayerZindex = layerZindex + 1; 
+            const changeLayer = objs.find((obj) => obj.zIndex === changeLayerZindex);
+            if(changeLayer){
+                dispatch(setLayerIndex(layerZindex, changeLayerZindex));
+                objs.forEach((obj) => {
+                    if(obj.type === 'group' && obj.groupId === selectedLayerId){
+                        canvas.bringForward(obj);
+                        obj.zIndex = changeLayerZindex;
+                        console.log( obj.groupId , ' move to ', changeLayerZindex );
+                    } 
+                    else if (obj.type === 'group' && obj.zIndex === changeLayerZindex){
+                        obj.zIndex = layerZindex;
+                        console.log( obj.groupId , ' move to ', layerZindex );
+                    }
+                })
+            }
+            setGroupToCanvas(true);
         }
-        setGroupToCanvas(true);
     
     }
 
@@ -979,7 +1036,7 @@ function CanvasApp() {
                                 <AiFillFileAdd className={styles.btnImage}/>
                             </button>
                             {selectedLayerId !== 1 && <button className={styles.btn} onClick={() => handleLayerMoveUp(selectedLayerId)}>
-                                <FaAngleDoubleUp size={20} className={styles.btnImage}/>
+                                <FaAngleDoubleUp size={20} />
                             </button>}
                             {selectedLayerId !== 1 && <button className={styles.btn} onClick={() => handleLayerMoveDown(selectedLayerId)}>
                                 <FaAngleDoubleDown size={20} className={styles.btnImage}/>
@@ -1000,6 +1057,9 @@ function CanvasApp() {
                                 </button>
                                 <img className={styles.layerImg} src={layer.data} id={'layerImg' + layer.id}/>
                                 <span  className={styles.layerSelector} onClick={() => handleSelectLayer(layer.id)}>{layer.name}</span>
+                                <div className={styles.layerOwnerContainer}>
+                                    {layer.owner === userUid &&<div className={styles.layerOwner}></div>}
+                                </div>
                             </div>
                         ))}
 

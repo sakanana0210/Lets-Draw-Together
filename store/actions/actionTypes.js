@@ -22,3 +22,4 @@ export const SET_NEW_TEXT = 'SET_NEW_TEXT';
 export const DONE_NEW_TEXT = 'DONE_NEW_TEXT';
 export const SET_NEW_IMAGE = 'SET_NEW_IMAGE';
 export const DONE_NEW_IMAGE = 'DONE_NEW_IMAGE';
+export const SET_ROOM_ID = 'SET_ROOM_ID';

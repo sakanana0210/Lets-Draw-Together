@@ -11,7 +11,8 @@ const initialState = {
     pencilSize: 2,
     pencilOpacity: 100,
     newText: false,
-    newImage: false
+    newImage: false,
+    roomId: ''
 };
 
 export const canvasReducer = (state = initialState, action) => {
@@ -66,6 +67,8 @@ switch (action.type) {
     return { ...state, newImage: action.payload.newImage }; 
     case "DONE_NEW_IMAGE":
         return { ...state, newImage: action.payload.newImage }; 
+    case "SET_ROOM_ID":
+        return { ...state, roomId: action.payload }; 
     default:
     return state;
 }

@@ -91,9 +91,15 @@ export const setNewImage = () => ({
     },
 });
 
-export const doneNewImage= () => ({
+export const doneNewImage = () => ({
     type: actionTypes.DONE_NEW_IMAGE,
     payload: {
         newImage: false,
     },
+});
+
+
+export const setroomId =  (roomId) => ({
+    type: actionTypes.SET_ROOM_ID,
+    payload: roomId
 });

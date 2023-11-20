@@ -7,6 +7,7 @@ import ToolDetails from './components/ToolDetails';
 import styles from './styles/drawing.module.scss';
 import Navbar from '../../components/Navbar';
 import LayersMenu from './components/LayersMenu';
+import ChatRoom from './components/ChatRoom';
 
 function Drawing() {
     return (
@@ -23,6 +24,7 @@ function Drawing() {
                 <div className={styles['right-div']}>
                     <CanvasApp/>
                 </div>
+                <ChatRoom />
             </div>
         </div>
     );
