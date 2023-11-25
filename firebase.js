@@ -3,6 +3,7 @@ require('dotenv').config();
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth,setPersistence, browserLocalPersistence } from "firebase/auth";
+import {getStorage} from 'firebase/storage';
 
 const firebaseConfig = {
     apiKey: "AIzaSyCa498gniDpl8F3J6LmJ_1VMlAsea7FndI",
@@ -16,6 +17,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
+
 export const setLocalPersistence = async () => {
     try {
         await setPersistence(auth, browserLocalPersistence);

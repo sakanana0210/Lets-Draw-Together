@@ -85,7 +85,7 @@ const Rooms = () => {
     return (
         <div className={styles.container}>
             <Navbar />
-            <h2 className={styles.title}>Rooms</h2>
+            <h2 className={styles.title}>Create / Join Room</h2>
             <hr className={styles.hr}/>
             <div className={styles.btnContainer}>
                 <button className={`${styles.btn} ${styles.btnContinue}`} onClick={handleCreateRoom}>Create New Room</button>

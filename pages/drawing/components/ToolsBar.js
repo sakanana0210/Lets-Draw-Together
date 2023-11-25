@@ -34,8 +34,8 @@ function ToolsBar() {
             eyedropper: eyedropperRef,
             eraser: eraserRef,
             text: textRef,
-            image: imageRef,
             layermove: layerMoveRef
+            // image: imageRef,
         };
         Object.values(toolRefs).forEach((ref) => {
             ref.current.classList.remove(styles.selected);
@@ -68,9 +68,9 @@ function ToolsBar() {
             <button className={styles.tool} ref={textRef} onClick={() => handleToolClick('text')}>
                 <div className={`${styles['tool-img']}`}><PiTextTBold size={24} /></div>
             </button>
-            <button className={styles.tool} ref={imageRef} onClick={() => handleToolClick('image')}>
+            {/* <button className={styles.tool} ref={imageRef} onClick={() => handleToolClick('image')}>
                 <div className={`${styles['tool-img']}`}><AiFillFileImage size={24} /></div>
-            </button>
+            </button> */}
 
         </div>
     );

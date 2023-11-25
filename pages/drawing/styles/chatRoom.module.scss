@@ -15,6 +15,7 @@ $back: rgb(246, 246, 246);
     .messagesList {
         height: 300px;
         overflow-y: scroll;
+        border-bottom: 1px solid #000;
         div {
             height: 25px;
             margin: 2px 10px;
@@ -36,6 +37,7 @@ $back: rgb(246, 246, 246);
     .messagesInputContainer {
         height: 50px;
         display: flex;
+        margin: 5px 0;
         input{
             width: 70%;
             margin: 5px;

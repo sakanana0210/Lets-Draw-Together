@@ -21,6 +21,10 @@ function Navbar() {
         router.push('/rooms');
     };
 
+    const handleClickMyPage= () => {
+        router.push('/mypage');
+    };
+
     const handleClickSignout = () => {
         dispatch(logout());
         if (router.asPath === '/') {
@@ -36,7 +40,12 @@ function Navbar() {
                 <div className={styles.title} onClick={backHome}>Let's Draw Together!</div>
             </div>
             <div className={styles.navbarRight}>
-                <button className={styles.itemButton} onClick={handleClickRoom}>Rooms</button>
+                {authenticated && (
+                    <button className={styles.itemButton} onClick={handleClickMyPage}>
+                        My Rooms
+                    </button>
+                )}
+                <button className={styles.itemButton} onClick={handleClickRoom}>New Room</button>
                 {authenticated ? (
                     <button className={styles.itemButton} onClick={handleClickSignout}>SignOut</button>
                 ) : (
