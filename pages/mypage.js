@@ -99,7 +99,7 @@ const Mypage = () => {
                                     <div className={styles.roomsContainer}>
                                     {currentItems.map((canvas) => (
                                         <div key={canvas.roomId} className={styles.roomContainer}>
-                                            <a href={`http://localhost:3000/drawing?roomId=${canvas.roomId}`}>
+                                            <a href={`/drawing?roomId=${canvas.roomId}`}>
                                                 <div className={styles.imgContainer}>
                                                     {canvas.img && (
                                                         <img src={canvas.img} alt="Room Image" />
