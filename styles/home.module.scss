@@ -3,19 +3,52 @@ $second: #fff;
 $third: #6b6b6b;
 $back: rgb(246, 246, 246);
 
+.container {
+    background-color: $back;
+    overflow: hidden;
+}
+
+.hr {
+    width: 80%;
+    height: 1px;
+    margin: auto;
+    background-color: $third;
+}
+
+.btnStart{
+    width: 200px;
+    height: 60px;
+    color: $primary;
+    font-weight: 700;
+    font-size: 1.3em;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background-color: $second;
+    transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+    border: 2px solid $primary;
+    
+}
+.btnStart:hover{
+    background-color: $primary;
+    color: $second;
+    border: 2px solid $second;
+}
+
 .welcome {
     width: 100%;
-    height: 600px;
+    height: 550px;
     display: flex;
     background-color: $back;
+    justify-content: center;
     .welcomeTextContainer {
         animation: slideInFromLeft 0.5s ease forwards;
         z-index: 100;
         display: block;
         width: 400px;
         .textContainer {
-            margin-left: 100px;
-            margin-top: 120px;
+            padding-left: 100px;
+            padding-top: 120px;
         }
         .title {
             color:$primary;
@@ -23,6 +56,7 @@ $back: rgb(246, 246, 246);
             font-weight: 900;
             margin-bottom: 20px;
             line-height:1.1em;
+            text-wrap: nowrap;
         }
         .subtitle{
             color: $third;
@@ -30,31 +64,13 @@ $back: rgb(246, 246, 246);
             white-space: nowrap;
             margin-bottom: 50px;
         }
-        .btnStart{
-            width: 200px;
-            height: 60px;
-            color: $primary;
-            font-weight: 700;
-            font-size: 1.3em;
-            cursor: pointer;
-            border: none;
-            border-radius: 10px;
-            background-color: $second;
-            transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
-            border: 2px solid $primary;
-            
-        }
-        .btnStart:hover{
-            background-color: $primary;
-            color: $second;
-            border: 2px solid $second;
-        }
     }
     .welcomeImageContainer{
         animation: fadeIn 0.5s ease forwards;
         width: 800px;
         height: 400px;
         margin-top: 60px;
+        margin-right: 100px;
         position: relative;
         .girlImage {
             width: 250px;
@@ -125,6 +141,104 @@ $back: rgb(246, 246, 246);
     }
 }
 
+.mainSection {
+    .feature{
+        width: 1100px;
+        height: 400px;
+        display: flex;
+        margin: auto;
+        background-color: $back;
+        .infoText {
+            width: 40%;
+            margin-top: 120px;
+            h2 {
+                width: 100%;
+                color: #6b6b6b;
+                text-align: left;
+            }
+            .icon {
+                text-align: left;
+                display: flex;
+                align-items: start;
+            }
+            .leftArrow{
+                color: $primary;
+                margin-bottom: 20px;
+                margin-left: 185px;
+            }
+        }
+        .infoText2 {
+            width: 40%;
+            margin-top: 120px;
+            h2 {
+                width: 100%;
+                color: #6b6b6b;
+                text-align: right;
+            }
+            .icon {
+                width: 100%;
+                display: flex;
+            }
+            .leftArrow{
+                color: $primary;
+                margin-bottom: 20px;
+                margin-left: 255px;
+            }
+        }
+        .imgContainer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60%;
+        }
+        .canvasImage {
+            width: 540px;
+            height: 310px;
+            background-size: cover;
+            background-image: url('../public/images/landing/canvas.png');
+            border-radius: 5px;
+            border:  10px #358be0 solid;
+            margin: auto;
+        }
+        .roomsImage {
+            width: 540px;
+            height: 310px;
+            background-size: cover;
+            background-image: url('../public/images/landing/rooms.png');
+            border-radius: 5px;
+            border:  10px #358be0 solid;
+            margin: auto;
+        }
+
+    }
+}
+
+.infoTextMedium{
+    display: none;
+}
+
+.bottom{
+    background-color: $back;
+    width: 100%;
+    height: 40px;
+}
+
+.mediumTitle{
+    display: none;
+}
+
+.medium{
+    display: none;
+}
+
+.welcomeImageContainerMedium{
+    display: none;
+}
+
+.smallInfoText {
+    display: none;
+}
+
 @keyframes fadeIn {
     from {
         transform: scale(0.8);
@@ -142,5 +256,330 @@ $back: rgb(246, 246, 246);
     }
     to {
         transform: translateX(0);
+    }
+}
+
+@media screen and (max-width: 1230px){
+    .medium{
+        display: block;
+        .btnContainer{
+            margin-top: 20px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+    }
+    .welcome{
+        display: block;
+        height: 100%;
+        .welcomeImageContainer{
+            margin:auto;
+            overflow-x: hidden;
+        }
+        .welcomeTextContainer{
+            display: block;
+            margin: auto;
+            width: 100%;
+            .btnContainer {
+                display: none;
+            }
+            .textContainer{
+                padding-top: 50px;
+                padding-left: 0;
+            }
+            .title{
+                display: none;
+            }
+            .mediumTitle{
+                display: block;
+                text-wrap: nowrap;
+                color:$primary;
+                font-size: 3.5rem;
+                text-align: center;
+                font-weight: 900;
+                margin-bottom: 20px;
+                line-height:1.1em;
+            }
+            .subtitle{
+                font-size: 2.5rem;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+        }
+    }
+    .mainSection {
+        .feature{
+            width: 90%;
+            height: 100%;
+            display: block;
+            margin: auto;
+            .imgContainer {
+                width: 100%;
+                display: block;
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }
+            .infoText {
+                display: none;
+            }
+            .infoText2{
+                display: none;
+            }
+
+            .infoTextMedium{
+                display: block;
+                margin-top: 30px;
+                h2 {
+                    width: 100%;
+                    color: #6b6b6b;
+                    text-align: center;
+                }
+                .icon {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+
+                    .leftArrow{
+                        color: $primary;
+                    }
+                }
+            }
+            .infoText2 {
+                width: 40%;
+                margin-top: 120px;
+                h2 {
+                    width: 100%;
+                    color: #6b6b6b;
+                    text-align: right;
+                }
+                .icon {
+                    width: 100%;
+                    display: flex;
+                }
+                .leftArrow{
+                    color: $primary;
+                    margin-bottom: 20px;
+                    margin-left: 255px;
+                }
+            }
+
+    
+        }
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .welcome{
+        .welcomeImageContainer{
+            display: none;
+        }
+        .welcomeTextContainer{
+            display: block;
+            margin: auto;
+            width: 90%;
+            .mediumTitle{
+                font-size: 2.8rem;
+            }
+            .subtitle{
+                font-size: 2rem;
+            }
+        }
+    }
+
+    .mainSection {
+        .feature{
+            .imgContainer {
+                width: 100%;
+            }
+            .canvasImage {
+                width: 370px;
+                height: 214px;
+            }
+            .roomsImage {
+                width: 370px;
+                height: 214px;
+            }
+    
+        }
+    }
+    .welcomeImageContainerMedium{
+        animation: fadeIn 0.5s ease forwards;
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        display: block;
+        margin: auto;
+        position: relative;
+        .girlImage {
+            width: 250px;
+            height: 250px;
+            background-size: cover;
+            background-image: url('../public/images/landing/girl.png');
+            position: absolute;
+            z-index: 51;
+            bottom: 0;
+            left: 0;
+        }
+        .catImage {
+            width: 200px;
+            height: 200px;
+            background-size: cover;
+            background-image: url('../public/images/landing/cat.png');
+            position: absolute;
+            z-index: 50;
+            bottom: 0;
+            right: 0;
+            margin-right: 10px;
+        }
+        .creativityImage {
+            width: 200px;
+            height: 200px;
+            background-size: cover;
+            background-image: url('../public/images/landing/creativity.png');
+            position: absolute;
+            z-index: 49;
+            top: 0;
+            left: 0;
+            margin-left: 100px;
+        }
+        .drawingImage{
+            width: 130px;
+            height: 130px;
+            background-size: cover;
+            background-image: url('../public/images/landing/drawing.png');
+            position: absolute;
+            z-index: 49;
+            bottom: 40px;
+            right: 20px;
+            margin-right: 80px;
+            margin-bottom: 150px;
+        }
+        .magicImage {
+            width: 130px;
+            height: 130px;
+            background-size: cover;
+            background-image: url('../public/images/landing/magic.png');
+            position: absolute;
+            z-index: 49;
+            bottom: 0;
+            right: 0;
+            margin-right: 230px;
+            margin-bottom: 50px;
+        }
+        .lineImage {
+            width: 1200px;
+            height: 400px;
+            background-size: cover;
+            background-image: url('../public/images/landing/line.png');
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            right: 0;
+        }
+    }
+}
+
+@media screen and (max-width: 530px) {
+    .smallInfoText{
+        display: block;
+        margin-top: 30px;
+        h2 {
+            width: 100%;
+            color: #6b6b6b;
+            text-align: center;
+        }
+        .icon {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+
+            .leftArrow{
+                color: $primary;
+            }
+        }
+    }
+    .welcome{
+        .welcomeTextContainer{
+            display: block;
+            margin: auto;
+            width: 90%;
+            .mediumTitle{
+                font-size: 2rem;
+            }
+            .subtitle{
+                font-size: 1.5rem;
+            }
+        }
+    }
+    .mainSection {
+        .feature{
+            .infoTextMedium {
+                display: none;
+            }
+
+            .leftArrow{
+                size: 40;
+            }
+            .imgContainer {
+                width: 100%;
+            }
+            .canvasImage {
+                width: 290px;
+                height: 170px;
+            }
+            .roomsImage {
+                width: 290px;
+                height: 170px;
+            }
+    
+        }
+    }
+    .welcomeImageContainerMedium{
+        animation: fadeIn 0.5s ease forwards;
+        width: 360px;
+        height: 300px;
+        display: block;
+        margin: auto;
+        position: relative;
+        .girlImage {
+            width: 200px;
+            height: 200px;
+            background-size: cover;
+            background-image: url('../public/images/landing/girl.png');
+            position: absolute;
+            z-index: 51;
+            bottom: 0;
+            left: 0;
+        }
+        .catImage {
+            width: 150px;
+            height: 150px;
+        }
+        .creativityImage {
+            width: 150px;
+            height: 150px;
+            margin-left: 15%;
+        }
+        .drawingImage{
+            width: 100px;
+            height: 100px;
+            margin-right: 10%;
+            margin-bottom: 100px;
+        }
+        .magicImage {
+            width: 80px;
+            height: 80px;
+            margin-right: 40%;
+            margin-bottom: 70px;
+        }
+        .lineImage{
+            top: -100px;
+            right: -100px;
+        }
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .container{
+        width: 360px;
     }
 }

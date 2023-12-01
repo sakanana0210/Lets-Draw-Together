@@ -14,6 +14,15 @@ const calculateNewLayerId = (layers) => {
     }
 };
 
+const calculateZindex = (layers) => {
+    const ifZindex0 =  layers.find((layer) => layer.zIndex === 0);
+    if(!ifZindex0){
+        return 0;
+    } else {
+        return layers.length;
+    }
+};
+
 export const layerReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'ADD_LAYER':
@@ -22,15 +31,15 @@ export const layerReducer = (state = initialState, action) => {
                 id: calculateNewLayerId(state.layers),
                 name: `Layer ${calculateNewLayerId(state.layers)}`,
                 visible: true,
-                zIndex: (calculateNewLayerId(state.layers) - 1),
+                zIndex: (calculateZindex(state.layers)),
                 owner: ownerId
             };
             
             if (!Array.isArray(state.layers)) {
-                return { ...state, layers: [newLayer], selectedLayerId: newLayer.id };
+                return { ...state, layers: [newLayer]};
             }
 
-            return { ...state, layers: [...state.layers, newLayer], selectedLayerId: newLayer.id };
+            return { ...state, layers: [...state.layers, newLayer]};
 
         case 'DELETE_LAYER':
             const deletedLayerId = action.payload;
@@ -68,6 +77,16 @@ export const layerReducer = (state = initialState, action) => {
                 return layer;
             });
             return { ...state, layers: updatedZIndexUpLayers };
+
+        case 'SET_NEW_INDEX_FOR_DELETE':
+            const { upperZindex, newUpperZindex } = action.payload;
+            const updatedZIndexForDeleteLayers = state.layers.map(layer => {
+                if (layer.zIndex === upperZindex) {
+                    return { ...layer, zIndex: newUpperZindex };
+                }
+                return layer;
+            });
+            return { ...state, layers: updatedZIndexForDeleteLayers };
 
         default:
         return state;

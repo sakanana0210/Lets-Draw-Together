@@ -43,3 +43,13 @@ export const setLayerIndex = (zIndex, changeZindex) => {
         }
     };
 };
+
+export const setNewIndexForDelete = (upperZindex, newUpperZindex) => {
+    return {
+        type: "SET_NEW_INDEX_FOR_DELETE",
+        payload: {
+            upperZindex,
+            newUpperZindex
+        }
+    };
+};

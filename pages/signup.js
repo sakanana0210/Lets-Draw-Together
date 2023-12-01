@@ -37,14 +37,16 @@ const Signup = () => {
     return (
         <div className={styles.container}>
             <Navbar />
-            <h2 className={styles.title}>Sign Up</h2>
-            <input className={styles.input} type="text" placeholder="Display Name" value={userName} onChange={(e) => setUserName(e.target.value)} />
-            <input className={styles.input} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <input className={styles.input} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <div className={styles.btnContainer}>
-                <button className={`${styles.btn} ${styles.btnContinue}`} onClick={handleSignup}>Continue</button>
+            <div className={styles.mainSection}>
+                <h2 className={styles.title}>Sign Up</h2>
+                <input className={styles.input} type="text" placeholder="Display Name" value={userName} onChange={(e) => setUserName(e.target.value)} />
+                <input className={styles.input} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input className={styles.input} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <div className={styles.btnContainer}>
+                    <button className={`${styles.btn} ${styles.btnContinue}`} onClick={handleSignup}>Continue</button>
+                </div>
+                <p className={styles.change} onClick={handleClick} >Already have an account?  → Log In</p>
             </div>
-            <p className={styles.change} onClick={handleClick} >Already have an account?  → Log In</p>
         </div>
     );
 };

@@ -3,12 +3,16 @@ $second: #fff;
 $third: #6b6b6b;
 $back: rgb(246, 246, 246);
 
-.container{
-    height: 100vh;
+.container {
     background-color: $back;
+    overflow: hidden;
+}
+
+.mainSection{
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100vh;
     .title{
         width: 100%;
         height: 100px;

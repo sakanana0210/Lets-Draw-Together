@@ -73,71 +73,73 @@ const Joinpage = () => {
     return (
         <div className={styles.container}>
             <Navbar />
-            <h2 className={styles.title}>Joined Rooms</h2>
-            <hr className={styles.hr} />
-            <div>
-                {loadDown === true ? (
-                    <>
-                        {playCanvasID.length > 0 && (
-                            <div className={styles.subtitleContainer}>
-                                <div className={styles.btnContainer}>
-                                    <IoIosArrowDropleftCircle onClick={setPageDown} className={styles.btn} size={34}/>
-                                </div>
-                                <div className={styles.pageTextContainer}>
-                                    {currentPage} / {maxPage} (Current Page / Total Pages)
-                                </div>
-                                <div className={styles.btnContainer}>
-                                    <IoIosArrowDroprightCircle onClick={setPageUp} className={styles.btn} size={34}/>
-                                </div>
-                                
-                            </div>
-                        )}
-                        
-                            {currentItems.length > 0 ? (
-                                <>
-                                    <div className={styles.roomsContainer}>
-                                    {currentItems.map((canvas) => (
-                                        <div key={canvas.roomId} className={styles.roomContainer}>
-                                            <a href={`/drawing?roomId=${canvas.roomId}`}>
-                                                <div className={styles.imgContainer}>
-                                                    {canvas.img && (
-                                                        <img src={canvas.img} alt="Room Image" />
-                                                    )}
-                                                </div>
-                                                <div className={styles.infoContainer}>
-                                                    <div className={styles.textContainer}>
-                                                        <div>
-                                                            <span>ID: {canvas.roomId}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className={styles.dateContainer}>
-                                                        <div>
-                                                            <span>DATE: </span>
-                                                            {canvas.date && (
-                                                                <span>{canvas.date}</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    ))}
+            <div className={styles.mainSection}>
+                <h2 className={styles.title}>Joined Rooms</h2>
+                <hr className={styles.hr} />
+                <div>
+                    {loadDown === true ? (
+                        <>
+                            {playCanvasID.length > 0 && (
+                                <div className={styles.subtitleContainer}>
+                                    <div className={styles.btnContainer}>
+                                        <IoIosArrowDropleftCircle onClick={setPageDown} className={styles.btn} size={34}/>
                                     </div>
-                                </>
-                            ) : (
-                                <div className={styles.notFindContainer}>
-                                    <div>Unable to find rooms. Please join a room.</div>
+                                    <div className={styles.pageTextContainer}>
+                                        {currentPage} / {maxPage} (Current Page / Total Pages)
+                                    </div>
+                                    <div className={styles.btnContainer}>
+                                        <IoIosArrowDroprightCircle onClick={setPageUp} className={styles.btn} size={34}/>
+                                    </div>
+                                    
                                 </div>
                             )}
-                    
-                </>
-                ) : (
-                    <div className={styles.loaderContainer}>
-                        <BarLoader color="#358be0" loading={true} height={4} width={200} />
+                            
+                                {currentItems.length > 0 ? (
+                                    <>
+                                        <div className={styles.roomsContainer}>
+                                        {currentItems.map((canvas) => (
+                                            <div key={canvas.roomId} className={styles.roomContainer}>
+                                                <a href={`/drawing?roomId=${canvas.roomId}`}>
+                                                    <div className={styles.imgContainer}>
+                                                        {canvas.img && (
+                                                            <img src={canvas.img} alt="Room Image" />
+                                                        )}
+                                                    </div>
+                                                    <div className={styles.infoContainer}>
+                                                        <div className={styles.textContainer}>
+                                                            <div>
+                                                                <span>ID: {canvas.roomId}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.dateContainer}>
+                                                            <div>
+                                                                <span>DATE: </span>
+                                                                {canvas.date && (
+                                                                    <span>{canvas.date}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className={styles.notFindContainer}>
+                                        <div>Unable to find rooms. Please join a room.</div>
+                                    </div>
+                                )}
+                        
+                    </>
+                    ) : (
+                        <div className={styles.loaderContainer}>
+                            <BarLoader color="#358be0" loading={true} height={4} width={200} />
+                        </div>
+                    )}
+                    <div className={styles.change}>
+                        <div onClick={handleClick}>Find rooms you created? → Created Room History</div>
                     </div>
-                )}
-                <div className={styles.change}>
-                    <div onClick={handleClick}>Find rooms you created? → Created Room History</div>
                 </div>
             </div>
         </div>

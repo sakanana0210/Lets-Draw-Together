@@ -3,8 +3,12 @@ $second: #fff;
 $third: #6b6b6b;
 $back: rgb(246, 246, 246);
 
-.container{
+.container {
     background-color: $back;
+    overflow: hidden;
+}
+
+.mainSection{
     display: flex;
     flex-direction: column;
     align-items: center;

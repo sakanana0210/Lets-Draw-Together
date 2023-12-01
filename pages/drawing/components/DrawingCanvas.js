@@ -8,12 +8,12 @@ import {addRoomIdToPlayCanvas, addRoomIdToOwnCanvas} from '../../../utils/addRoo
 import { fabric } from 'fabric-with-erasing';
 import { FaAngleDoubleDown, FaAngleDoubleUp} from 'react-icons/fa';
 import { AiOutlinePlusCircle, AiOutlineMinusCircle, AiFillEye, AiFillEyeInvisible, AiFillDelete, AiFillFileAdd, AiOutlineCaretDown, AiOutlineCaretUp } from 'react-icons/ai';
-import { selectLayer, addLayer, deleteLayer, setLayerVisibility, setExistedLayer, setLayerIndex } from '../../../store/actions/layerActionsCreator.js';
-import { doc, query, limit, collection, addDoc, setDoc, serverTimestamp, getDoc, getDocs, updateDoc, onSnapshot } from "firebase/firestore";
+import { selectLayer, addLayer, deleteLayer, setLayerVisibility, setExistedLayer, setLayerIndex, setNewIndexForDelete } from '../../../store/actions/layerActionsCreator.js';
+import { doc, query, limit, collection, addDoc, setDoc, serverTimestamp, getDoc, getDocs, updateDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage} from '../../../firebase.js';
 import isEqual from 'lodash/isEqual';
-import { compact, set } from 'lodash';
+import { compact, initial, set, stubString } from 'lodash';
 
 function CanvasApp() {
     const dispatch = useDispatch();
@@ -42,11 +42,15 @@ function CanvasApp() {
     const [textEditing, setTextEditing] = useState(null);
     const [textLayer, settextLayer] = useState(null);
     const [groupToCanvas, setGroupToCanvas] = useState(false);
+    const [deleteToDb, setDeleteToDb] = useState(false);
     const [newCanvas1Group, setNewCanvas1Group] = useState(false);
     const [loadCanvasDone, setLoadCanvasDone] = useState(false);
     const [layerEdit, setLayerEdit] = useState(false);
     const [imageGroup, setImageGroup] = useState(false);
     const [updateCanvasToDB, setUpdateCanvasToDB] = useState(false);
+    const [groupToCanvasForLayer, setGroupToCanvasForLayer] = useState(false);
+    const [changeLayer, setChangeLayer] = useState(null);
+    let initialLoad = true;
     let layers = useSelector((state) => state.layer.layers);
     layers = layers.sort((a, b) => b.zIndex - a.zIndex);
     const router = useRouter();
@@ -54,6 +58,19 @@ function CanvasApp() {
     const authenticated = useSelector((state) => state.auth.isAuthenticated);
     const userUid = useSelector((state) => state.auth.loginUserUid);
     const userName = useSelector((state) => state.auth.loginUserName);
+    const [timerFlag, setTimerFlag] = useState(false);
+    const [immediateFlag, setImmediate ] = useState(false);
+    const [flip, setFlip ] = useState(false);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimerFlag(true);
+        }, 5000);
+    
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
 
     // enter room load json canvas or create json
     useEffect(() => {
@@ -63,108 +80,131 @@ function CanvasApp() {
                 const roomsCollection = collection(db, 'rooms');
                 const roomDocumentRef = doc(roomsCollection, roomId);
                 const canvasInfoCollection = collection(roomDocumentRef, 'canvasInfo');
-                const querySnapshot = await getDocs(canvasInfoCollection);
-                if (querySnapshot.docs.length > 0) {
-                    let jsonData = '';
-                    querySnapshot.docs.forEach(docSnapshot => {
-                        const docData = docSnapshot.data();
-                        if (docData.canvasJson) {
-                            jsonData += docData.canvasJson;
-                        }
-                    });
+                const infoDocumentRef = doc(canvasInfoCollection, 'info');
+                const objectsCollection = collection(infoDocumentRef, 'objects');
+                const infoDocSnapshot = await getDoc(infoDocumentRef);
 
-                    const loadCanvasFromJson = async (jsonString) => {
-                        try {
-                        const canvas  = new fabric.Canvas(canvasRef.current, {
-                            width: 800,
-                            height: 400,
-                            isDrawingMode: true,
-                            selection: false,
+                if(infoDocSnapshot.exists()){
+                    try {
+                        const data = infoDocSnapshot.data();
+                        const canvasOwner = data['userUid'];
+                        const jsonString = data['canvasJson'];
+                        const jsonData = JSON.parse(jsonString);
+                        const objectsDocSnapshot = await getDocs(objectsCollection);
+                        const objectsData = [];
+                        objectsDocSnapshot.forEach(async (doc) => {
+                            const data = doc.data();
+                            const objectData = data['canvasJson'];
+                            const objectJsonData = JSON.parse(objectData);
+                            objectsData.push(objectJsonData);
                         });
-                        let layerList = [];
-                        const idSet = new Set();
-                        await canvas.loadFromJSON(jsonString, function() {
-                        canvas.renderAll();
-                        console.log('Canvas loaded from JSON successfully');
-                        console.log('user ID: ', userUid);
-                        }, function(object) {
-                            if (object.type === 'image' && object.getSrc) {
-                                object.setSrc(object.getSrc(), function() {
-                                canvas.renderAll();
-                                });
-                            } else if (object.type === 'group' && object.groupId){
-                                const NewLayer = {
-                                    id: object.groupId,
-                                    name: `Layer ${object.groupId}`,
-                                    visible: true,
-                                    zIndex: object.zIndex,
-                                    owner: object.owner
-                                }
-                                object.visible = true;
-                                if(!idSet.has(object.groupId)){
-                                    idSet.add(object.groupId);
-                                    layerList.push(NewLayer);
-                                }
-                            }
+                        const sortedObjs = objectsData.sort((a, b) => {
+                            const zIndexA = a.zIndex || 0;
+                            const zIndexB = b.zIndex || 0;
+                            return zIndexA - zIndexB;
                         });
-                        setCanvas(canvas);
-                        setLoadCanvasDone(true);
+                        jsonData.objects = sortedObjs;
 
-                        if(layerList.length !== 0){
-                            console.log('load layer');
-                        } else {
-                            const NewLayer = {
-                                id: 1,
-                                name: `Layer 1`,
-                                visible: true,
-                                zIndex: 0,
-                                owner: userUid
-                            }
-                            layerList.push(NewLayer);
-                            setNewCanvas1Group(true);
-                        }
-                        dispatch(setExistedLayer(layerList));
-                        return [canvas, layerList];
-                    } catch (error) {
-                        console.error('Error loading canvas from JSON:', error);
-                        return null;
-                    }
-                    };
-                    let [canvas, layerList] = await loadCanvasFromJson(jsonData);
-
-                    const setLayerImg = () => {
-                        for (let i = 1 ; i <= layerList.length ; i++) {
-                            const tempCanvas = new fabric.StaticCanvas("", {
-                                width: canvas.width,
-                                height: canvas.height
-                            });                      
-                            const groups = canvas.getObjects();
-                            groups.forEach(async (v) => {
-                                if (v.groupId === i && v.type === 'group') {
-                                    try{
-                                        await tempCanvas.add(v);
-                                        tempCanvas.renderAll();
-                                        const previewDataURL = await tempCanvas.toDataURL({
-                                            format: 'jpg',
-                                            quality: 0.1,
-                                        });
-                                        // const selectedLayer = await layers.find(layer => layer.id === i);
-                                        // selectedLayer.data = previewDataURL;
-                                        const string = "layerImg" + i;
-                                        const layerImg = document.getElementById(string);
-                                        layerImg.src= previewDataURL;
-                                    } catch (e) {
-                                        console.error(e);
+                        const loadCanvasFromJson = async (jsonString) => {
+                            try {
+                            const canvas  = new fabric.Canvas(canvasRef.current, {
+                                width: 800,
+                                height: 400,
+                                isDrawingMode: true,
+                                selection: false,
+                            });
+                            let layerList = [];
+                            const idSet = new Set();
+                            await canvas.loadFromJSON(jsonString, function() {
+                            canvas.renderAll();
+                            console.log('Canvas loaded from JSON successfully');
+                            console.log('user ID: ', userUid);
+                            }, function(object) {
+                                if (object.type === 'image' && object.getSrc) {
+                                    object.setSrc(object.getSrc(), function() {
+                                    canvas.renderAll();
+                                    });
+                                } else if (object.type === 'group' && object.groupId){
+                                    const NewLayer = {
+                                        id: object.groupId,
+                                        name: `Layer ${object.groupId}`,
+                                        visible: true,
+                                        zIndex: object.zIndex,
+                                        owner: object.owner
+                                    }
+                                    object.visible = true;
+                                    if(!idSet.has(object.groupId)){
+                                        idSet.add(object.groupId);
+                                        layerList.push(NewLayer);
                                     }
                                 }
                             });
-                            
+                            setCanvas(canvas);
+                            setLoadCanvasDone(true);
+    
+                            if(layerList.length !== 0){
+                                console.log('load layer');
+                            } else {
+                                const NewLayer = {
+                                    id: 1,
+                                    name: `Layer 1`,
+                                    visible: true,
+                                    zIndex: 0,
+                                    owner: userUid
+                                }
+                                layerList.push(NewLayer);
+                                setNewCanvas1Group(true);
+                            }
+                            dispatch(setExistedLayer(layerList));
+                            return [canvas, layerList];
+                        } catch (error) {
+                            console.error('Error loading canvas from JSON:', error);
+                            return null;
                         }
-
+                        };
+                        let [canvas, layerList] = await loadCanvasFromJson(jsonData);
+    
+                        const setLayerImg = () => {
+                            for (let i = 1 ; i <= layerList.length ; i++) {
+                                const tempCanvas = new fabric.StaticCanvas("", {
+                                    width: canvas.width,
+                                    height: canvas.height
+                                });                      
+                                const groups = canvas.getObjects();
+                                groups.forEach(async (v) => {
+                                    if (v.groupId === i && v.type === 'group') {
+                                        try{
+                                            await tempCanvas.add(v);
+                                            tempCanvas.renderAll();
+                                            const previewDataURL = await tempCanvas.toDataURL({
+                                                format: 'jpg',
+                                                quality: 0.1,
+                                            });
+                                            // const selectedLayer = await layers.find(layer => layer.id === i);
+                                            // selectedLayer.data = previewDataURL;
+                                            const string = "layerImg" + i;
+                                            const layerImg = document.getElementById(string);
+                                            layerImg.src= previewDataURL;
+                                        } catch (e) {
+                                            console.error(e);
+                                        }
+                                    }
+                                });
+                                
+                            }
+    
+                        }
+                        setLayerImg();
+                        if(canvasOwner !== userUid){
+                            addRoomIdToPlayCanvas(roomId, userUid);
+                        }else {
+                            console.log('my room');
+                        }
+                        
                     }
-                    setLayerImg();
-                    addRoomIdToPlayCanvas(roomId, userUid);
-
+                    catch (error) {
+                        console.error('Error updating canvas info:', error);
+                    }
                 } else {
                     try {
                         const newCanvas  = new fabric.Canvas(canvasRef.current, {
@@ -176,7 +216,7 @@ function CanvasApp() {
                         });
                         await setCanvas(newCanvas);
                         const canvasJson = JSON.stringify(newCanvas.toJSON());
-                        const partDocumentRef = doc(canvasInfoCollection, 'part1');
+                        const partDocumentRef = doc(canvasInfoCollection, 'info');
                         await setDoc(partDocumentRef, {
                             timestamp: serverTimestamp(),
                             canvasJson: canvasJson,
@@ -197,7 +237,7 @@ function CanvasApp() {
                         setLoadCanvasDone(true);
                         addRoomIdToOwnCanvas(roomId, userUid);
 
-                        console.log('Document written part 1');
+                        console.log('Document written info');
                         console.log('user ID: ', userUid);
                     } catch (e) {
                         console.error('Error writing document: ', e);
@@ -206,15 +246,16 @@ function CanvasApp() {
             }
 
             setRoomDoc();
+            setLayerEdit(true);
         }
     }, [roomId]);
 
     //test
-    // useEffect(() => {
-    //     if(canvas){
-    //         console.log(layers);
-    //     }
-    // }, [layers]);
+    useEffect(() => {
+        if(canvas){
+            console.log(layers);
+        }
+    }, [layers]);
 
     // create new room's 1st layer
     useEffect(() => {
@@ -237,13 +278,6 @@ function CanvasApp() {
 
     // select tool first
     useEffect(() => {
-
-        dispatch(selectLayer(1));
-        // const layer = layers.find(layer => layer.id === 1);
-        // const layerOwner = layer.owner;
-        // if(layerOwner === userUid){
-        //     setLayerEdit(true);
-        // }
         dispatch(setSelectedTool('brush'));
         dispatch(setRGB([0,0,0], [0,0,0]));
         dispatch(setBrushSize(2));
@@ -252,7 +286,7 @@ function CanvasApp() {
         const updateCanvasToDB = async () => {
             setUpdateCanvasToDB(true);
         };
-        //interval記得改
+        //interval記得改 現在是3分鐘
         const interval = setInterval(() => {
             updateCanvasToDB();
         }, 180000);
@@ -261,57 +295,131 @@ function CanvasApp() {
             clearInterval(interval);
         };
     }, []);
+
+    // 選擇圖層
+    useEffect(() => {
+        if(loadCanvasDone === true){
+            const ownLayers = layers.filter(layer => layer.owner === userUid);
+            const ownlayer = ownLayers[0];
+            if(ownlayer){
+                dispatch(selectLayer(ownlayer.id));
+            } else {
+                handleAddLayer();
+            }
+        }
+    }, [loadCanvasDone]);
     
+
     // handle canvasJSON to firebase db
-    
     useEffect(() => {
         const updateCanvasInfo = async () => {
-            if (canvas && groupToCanvas === true) {
+            if (canvas && groupToCanvas === true && layerEdit === true) {
+                if( (timerFlag === true || immediateFlag === true)){
+                    console.log('timerFlag', timerFlag);
+                    console.log('immediateFlag', immediateFlag);
+                    const roomsCollection = collection(db, 'rooms');
+                    const roomDocumentRef = doc(roomsCollection, roomId);
+                    const canvasInfoCollection = collection(roomDocumentRef, 'canvasInfo');
+                    const infoDocumentRef = doc(canvasInfoCollection, 'info');
+                    const objectsCollection = collection(infoDocumentRef, 'objects');
+                    try {
+                        const infoDocSnapshot = await getDoc(infoDocumentRef);
+                        if(infoDocSnapshot.exists()){
+                            const objects = canvas.getObjects();
+                            const selectedobject = objects.find((obj) => obj.groupId === selectedLayerId);
+                            const selectedObjectJSON =  selectedobject.toJSON(['groupId', 'zIndex', 'owner']);
+                            const data = {
+                                timestamp: serverTimestamp(),
+                                canvasJson: JSON.stringify(selectedObjectJSON),
+                                userUid: userUid
+                            }
+                            const objectsDocRef = doc(objectsCollection, 'object' + selectedLayerId);
+                            await setDoc(objectsDocRef, data);
+                            console.log(selectedLayerId, 'Selected objects JSON saved to Firestore.');
+                        }
+                        setGroupToCanvas(false);
+                        setTimerFlag(false);
+                        setImmediate(false);
+                    } catch (error) {
+                        console.error('Error updating canvas info:', error);
+                    }
+                }
+            
+            }
+        };
+        updateCanvasInfo();
+    }, [groupToCanvas, selectedLayerId, timerFlag, immediateFlag])
+
+    // handle layer change 
+    useEffect(() => {
+        const updateCanvasInfo = async () => {
+            if (canvas && groupToCanvasForLayer === true && layerEdit === true) {
                 const roomsCollection = collection(db, 'rooms');
                 const roomDocumentRef = doc(roomsCollection, roomId);
                 const canvasInfoCollection = collection(roomDocumentRef, 'canvasInfo');
+                const infoDocumentRef = doc(canvasInfoCollection, 'info');
+                const objectsCollection = collection(infoDocumentRef, 'objects');
                 try {
-                    const querySnapshot = await getDocs(canvasInfoCollection);
-                    if (querySnapshot.docs[0]) {
-                            const canvasJsonObj = canvas.toJSON(['groupId', 'zIndex', 'owner']);
-                            const canvasJson = JSON.stringify(canvasJsonObj);
-                            const MAX_DOCUMENT_SIZE = 1048576;
-                            // const canvasJson = '12345abc123abcd1234';
-                            // const MAX_DOCUMENT_SIZE = 2;
-                            if (canvasJson.length > MAX_DOCUMENT_SIZE) {
-                                const chunks = [];
-                                let index = 1;
-                                while (canvasJson.length > 0) {
-                                    const chunk = canvasJson.substring(0, MAX_DOCUMENT_SIZE);
-                                    chunks.push(chunk);
-                                    canvasJson = canvasJson.substring(MAX_DOCUMENT_SIZE);
-                                    index++;
-                                }
-                                chunks.forEach(async (chunk, idx) => {
-                                    const data = {
-                                        canvasJson: chunk,
-                                        userUid: userUid,
-                                        timestamp: serverTimestamp()
-                                    };
-                                    const partDocumentRef = doc(canvasInfoCollection, `part${idx + 1}`);
-                                    await setDoc(partDocumentRef, data);
-                                    console.log(`Part ${idx + 1} stored successfully`);
-                                });
-                            } else {
-                                const data = { canvasJson, userUid };
-                                await updateDoc(doc(canvasInfoCollection, 'part1'), data);
-                                console.log('Data stored successfully');
-                            }
+                    const infoDocSnapshot = await getDoc(infoDocumentRef);
+                    if(infoDocSnapshot.exists()){
+                        const objects = canvas.getObjects();
+                        const selectedobject = objects.find((obj) => obj.groupId === selectedLayerId);
+                        const selectedObjectJSON =  selectedobject.toJSON(['groupId', 'zIndex', 'owner']);
+                        const data = {
+                            timestamp: serverTimestamp(),
+                            canvasJson: JSON.stringify(selectedObjectJSON),
+                            userUid: userUid
+                        }
+                        const objectsDocRef = doc(objectsCollection, 'object' + selectedLayerId);
+                        await setDoc(objectsDocRef, data);
+
+                        const selectedobject2 = objects.find((obj) => obj.groupId === changeLayer);
+                        const selectedObjectJSON2 =  selectedobject2.toJSON(['groupId', 'zIndex', 'owner']);
+                        const data2 = {
+                            timestamp: serverTimestamp(),
+                            canvasJson: JSON.stringify(selectedObjectJSON2),
+                            userUid: userUid
+                        }
+                        const objectsDocRef2 = doc(objectsCollection, 'object' + changeLayer);
+                        await setDoc(objectsDocRef2, data2);
+                        console.log(selectedLayerId, 'Selected objects JSON saved to Firestore.');
                     }
-                    setGroupToCanvas(false);
+                    setGroupToCanvasForLayer(false);
                 } catch (error) {
                     console.error('Error updating canvas info:', error);
                 }
             }
         };
         updateCanvasInfo();
-    }, [groupToCanvas])
+    }, [groupToCanvasForLayer, selectedLayerId, changeLayer])
 
+    // handle canvasJson delete
+    useEffect(() => {
+        const updateCanvasInfo = async () => {
+            if (canvas && deleteToDb === true) {
+                const roomsCollection = collection(db, 'rooms');
+                const roomDocumentRef = doc(roomsCollection, roomId);
+                const canvasInfoCollection = collection(roomDocumentRef, 'canvasInfo');
+                const infoDocumentRef = doc(canvasInfoCollection, 'info');
+                const objectsCollection = collection(infoDocumentRef, 'objects');
+                const objectDocumentRef = doc(objectsCollection, 'object' + selectedLayerId);
+                try {
+                    console.log(selectedLayerId);
+                    const updatedLayers = layers.filter(layer => layer.id !== selectedLayerId);
+                    const updatedSelectedLayer = updatedLayers[0];
+                    dispatch(selectLayer(updatedSelectedLayer.id));
+                    await deleteDoc(objectDocumentRef);
+                    console.log(selectedLayerId, 'delete objects JSON saved to Firestore.');
+                    setDeleteToDb(false);
+                } catch (error) {
+                    console.error('Error updating canvas info:', error);
+                }
+            }
+        };
+        updateCanvasInfo();
+    }, [deleteToDb])
+
+    // set user rooms
     useEffect(() => {
         const updateCanvasInfo = async () => {
             if (canvas && roomId && updateCanvasToDB === true) {
@@ -368,7 +476,7 @@ function CanvasApp() {
     
     // handle shared canvas
     useEffect(()=>{
-        if (canvas && loadCanvasDone === true) {
+        if ((canvas && loadCanvasDone === true && timerFlag === true )|| (canvas && loadCanvasDone === true && immediateFlag === true) ) {
             const loadCanvasFromJson = async (jsonString) => {
                 const newCanvas  = new fabric.Canvas(canvasRef.current, {
                     width: 800,
@@ -423,82 +531,147 @@ function CanvasApp() {
             const roomsCollection = collection(db, 'rooms');
             const roomDocumentRef = doc(roomsCollection, roomId);
             const canvasInfoCollection = collection(roomDocumentRef, 'canvasInfo');
+            const infoDocumentRef = doc(canvasInfoCollection, 'info');
+            const objectsCollection = collection(infoDocumentRef, 'objects'); 
             
-            // const unsubscribe = onSnapshot(canvasInfoCollection, async (snapshot) => {
-            //         // let jsonData = '';
-            //         // querySnapshot.docs.forEach(docSnapshot => {
-            //         //     const docData = docSnapshot.data();
-            //         //     if (docData.canvasJson) {
-            //         //         jsonData += docData.canvasJson;
-            //         //     }
-            //         // });
-            //         // console.log(jsonData); 
-            //     let conbinedJsonData = '';
-            //     snapshot.docChanges().forEach(async (change) => {
-            const unsubscribe = onSnapshot(query(canvasInfoCollection, limit(1)), async (snapshot) => {
-                if (!snapshot.empty) {
-                    const change = snapshot.docChanges()[0];
-                    if (change.type === 'modified') {
-                        const modifiedDocumentData = change.doc.data();
-                        if (modifiedDocumentData['userUid'] !== userUid) {
-                            console.log('different');
-                            let conbinedJsonData = '';
-                            const docs = await getDocs(canvasInfoCollection);
-                            docs.docs.forEach(docSnapshot => {
-                                const docData = docSnapshot.data();
-                                if (docData.canvasJson) {
-                                    conbinedJsonData += docData.canvasJson;
+            const unsubscribe = onSnapshot((objectsCollection), async (snapshot) => {
+
+                if(initialLoad === true){
+                    initialLoad = false;
+                    return;
+                }
+
+                const jsonGroupIdList = [];
+
+                const setNewLayers = async() => {
+                    let layerList = [];
+                    const idSet = new Set();
+                    const oldLayers = layers;
+                    
+                    const querySnapshot = await getDocs(objectsCollection);
+                    if (querySnapshot) {
+                        querySnapshot.docs.forEach(docSnapshot => {
+                            const docData = docSnapshot.data();
+                            if (docData.canvasJson) {
+                                const object = JSON.parse(docData.canvasJson);
+                                const foundLayer = oldLayers.find(layer => layer.id === object.groupId);
+                                const NewLayer = {
+                                    id: object.groupId,
+                                    name: `Layer ${object.groupId}`,
+                                    visible: foundLayer ? foundLayer.visible : true,
+                                    zIndex: object.zIndex,
+                                    owner: object.owner
                                 }
+                                if(!idSet.has(object.groupId)){
+                                    idSet.add(object.groupId);
+                                    layerList.push(NewLayer);
+                                }
+                            }
+                        });
+                    }
+                    console.log(layerList);
+                    dispatch(setExistedLayer(layerList));
+                }
+
+                //check if correct
+                const removeAndadd = async() => {
+                    let conbinedJsonData;
+                    const infoDocSnapshot = await getDoc(infoDocumentRef);
+                    if(infoDocSnapshot.exists()){
+                        const data = infoDocSnapshot.data();
+                        const jsonString = data['canvasJson'];
+                        const jsonData = JSON.parse(jsonString);
+                        const objectsDocSnapshot = await getDocs(objectsCollection);
+                        objectsDocSnapshot.forEach(async (doc) => {
+                            const data = doc.data();
+                            const objectData = data['canvasJson'];
+                            const objectJsonData = JSON.parse(objectData);
+                            jsonData['objects'].push(objectJsonData);
+                        });
+                        conbinedJsonData = JSON.stringify(jsonData);
+                    }
+                    const oldObjs = canvas.getObjects();
+                    let [sharedCanvas, sharedLayerList] = await loadCanvasFromJson(conbinedJsonData);
+                    const newObjs = sharedCanvas['_objects'];
+                    
+                    const sortedObjs = newObjs.sort((a, b) => {
+                        const zIndexA = a.zIndex || 0;
+                        const zIndexB = b.zIndex || 0;
+                        return zIndexA - zIndexB;
+                    });
+
+                    for (const oldObj of oldObjs) {
+                        if (oldObj.type === 'group' && oldObj.groupId) {
+                            canvas.remove(oldObj);
+                        }
+                    }
+
+                    for (const newObj of sortedObjs) {
+                        if (newObj.type === 'image' && newObj.getSrc) {
+                            newObj.setSrc(object.getSrc(), function() {
+                                canvas.renderAll();
                             });
-                            console.log(conbinedJsonData);
-                            let [sharedCanvas, sharedLayerList] = await loadCanvasFromJson(conbinedJsonData);
-                            const oldObjs = canvas.getObjects();
-                            const newObjs = sharedCanvas['_objects'];
+                        } else if (newObj.type === 'group' && newObj.groupId) {
+                            console.log(newObj.groupId);
+                            const matchingoldObj = oldObjs.find(oldObj => oldObj.type === 'group' && oldObj.groupId === newObj.groupId);
+                            const matchingLayer = sharedLayerList.find(layer => layer.id === newObj.groupId);
+                            if(matchingLayer) {
+                                const matchingLayerVisible = matchingLayer.visible;
+                                canvas.add(newObj);
+                            
+                                if(matchingoldObj) {
+                                    newObj.visible = true;
+                                }
+                                await setLayerImg(newObj.groupId, newObj);
 
-                            for (const oldObj of oldObjs) {
-                                if (oldObj.type === 'group' && oldObj.groupId) {
-                                    canvas.remove(oldObj);
+                                if (matchingoldObj && matchingLayerVisible === false) {
+                                    newObj.visible = false;
+                                } else if (matchingoldObj && matchingLayerVisible === true) {
+                                    newObj.visible = true;
                                 }
                             }
-
-                            for (const newObj of newObjs) {
-                                if (newObj.type === 'image' && newObj.getSrc) {
-                                    newObj.setSrc(object.getSrc(), function() {
-                                        canvas.renderAll();
-                                    });
-                                } else if (newObj.type === 'group' && newObj.groupId) {
-                                    console.log(newObj.groupId);
-                                    const matchingoldObj = oldObjs.find(oldObj => oldObj.type === 'group' && oldObj.groupId === newObj.groupId);
-                                    const matchingLayer = sharedLayerList.find(layer => layer.id === newObj.groupId);
-                                    if(matchingLayer) {
-                                        const matchingLayerVisible = matchingLayer.visible;
-                                        canvas.add(newObj);
-                                        if(matchingoldObj) {
-                                            newObj.visible = true;
-                                        }
-                                        await setLayerImg(newObj.groupId, newObj);
-    
-                                        if (matchingoldObj && matchingLayerVisible === false) {
-                                            newObj.visible = false;
-                                        } else if (matchingoldObj && matchingLayerVisible === true) {
-                                            newObj.visible = true;
-                                        }
-                                    }
-                                }
-                            }
-
                         }
                     }
                 }
-            })
 
+                snapshot.docChanges().forEach(async(change) => {
+                    const doc = change.doc.data();
+                    const docId = change.doc.id;
+                    
+                    if (doc['userUid'] !== userUid) {
+                        const jsonString = doc['canvasJson'];
+                        const jsonData = JSON.parse(jsonString);
+                        const jsonGroupId = jsonData['groupId'];
+                        console.log('jsonGroupId', jsonGroupId);
+
+                        if (change.type === 'modified') {
+                            console.log('修改文檔:', docId);
+                            removeAndadd();
+                        }
+                        else if (change.type === 'removed') {
+                            console.log('刪除文檔:', docId);
+                            removeAndadd();
+                        }else if (change.type === 'added') {
+                            console.log('添加文檔:', docId);
+                            removeAndadd();
+                        }
+
+
+
+
+
+                    }
+                });
+            });
 
     
             return () => {
                 unsubscribe();
             };
         }
-    }, [loadCanvasDone, layers]);
+    }, [loadCanvasDone, layers, timerFlag, immediateFlag]);
+
+
 
     // handle text tool
     const addText = async () => {
@@ -615,127 +788,6 @@ function CanvasApp() {
             addToGroup();
         }
     }, [textLayer, selectedLayerId]);
-
-    // // handle add image tool
-    // useEffect(() => {
-    //     if (canvas) {
-    //         const handleAddImage = () => {
-    //             document.getElementById('upload').addEventListener('change', async (e) => {
-    //                 const files = e.target.files;
-    //                 const file = files[0];
-    //                 const maxSize = 1024 * 1024;
-    //                 if (file.size > maxSize) {
-    //                     alert('File size should be less than 1 MB.');
-    //                     return;
-    //                 }
-    //                 const generateRandomFileName = () => {
-    //                     const timestamp = new Date().getTime();
-    //                     const randomString = Math.random().toString(36).substring(2, 8);
-    //                     return `${timestamp}_${randomString}`; 
-    //                 }
-    //                 const randomFileName = generateRandomFileName();
-    //                 const storageRef = ref(storage, 'images/' + randomFileName);
-    //                 try {
-    //                     const snapshot = await uploadBytes(storageRef, file);
-    //                     const downloadURL = await getDownloadURL(snapshot.ref);
-    //                     const imgObj = new Image();
-    //                     imgObj.src = downloadURL;
-    //                     imgObj.crossOrigin = "anonymous";
-    //                     imgObj.onload = async() => {
-    //                         const fabricImg = new fabric.Image(imgObj);
-    //                         await canvas.add(fabricImg);
-    //                         setImageGroup(true);
-    //                     };
-    //                 } catch (error) {
-    //                     console.error('上傳檔案時發生錯誤:', error);
-    //                 }
-    //             });
-    //                 // const reader = new FileReader();
-    //                 // reader.onload = async (e) => {
-    //                 //     const imgObj = new Image();
-    //                 //     imgObj.src = e.target.result;
-    //                 //     imgObj.onload = async() => {
-    //                 //         const fabricImg = new fabric.Image(imgObj);
-    //                 //         await canvas.add(fabricImg);
-    //                 //         setImageGroup(true);
-    //                 //     };
-    //                 // };
-    //                 // reader.readAsDataURL(file);
-    //         }
-    //         handleAddImage();
-    //     } 
-    // }, [canvas]);
-    
-    // const addImageToGroup = async() => {
-    //     const tempCanvas = new fabric.StaticCanvas("", {
-    //             width: canvas.width,
-    //             height: canvas.height
-    //         }
-    //     );
-    //     const groups = await canvas.getObjects();
-    //     const imageObj = await groups.find(group => group.type === 'image');
-    //     groups.forEach(async (v) => {
-    //         if (v.groupId === selectedLayerId && v.type === 'group' && imageObj) {
-    //             try{
-    //                 await v.addWithUpdate(imageObj);
-    //                 canvas.remove(imageObj);
-    //                 await tempCanvas.add(v);
-    //                 tempCanvas.renderAll();
-    //                 console.log('add to group ', v);
-    //                 const previewDataURL = await tempCanvas.toDataURL({
-    //                     format: 'jpg',
-    //                     quality: 0.1,
-    //                 });
-    //                 const selectedLayer = await layers.find(layer => layer.id === selectedLayerId);
-    //                 selectedLayer.data = previewDataURL;
-    //                 const string = "layerImg" + selectedLayerId;
-    //                 const layerImg = document.getElementById(string);
-    //                 layerImg.src= previewDataURL;
-    //                 console.log('image ', previewDataURL);
-    //                 setImageGroup(false);
-    //             } catch (e) {
-    //                 console.error(e);
-    //             }
-
-    //         }
-    //     });
-    // }
-
-    // useEffect(() => {
-    //     const addLayerAndImage = async () => {
-    //         await handleAddLayer();
-    //         const input = document.getElementById('upload');
-    //         input.click();
-    //         setObjEventsFalse();
-    //     }
-        
-    //     if (newImage === true && canvas && selectedTool === 'image') {
-    //         addLayerAndImage();
-    //         setGroupToCanvas(true);
-    //         dispatch(doneNewImage());
-    //     }
-    // }, [newImage]);
-
-    // const setObjEventsFalse = () => {
-    //     const objects = canvas.getObjects();
-    //     objects.forEach((obj) => {
-    //             obj.evented = false;
-    //     });
-    // }   
-
-    // useEffect(() => {
-
-    //     const addImageToGroupAndSetGroupToCanvas = async() => {
-    //         await addImageToGroup();
-    //         setObjEventsFalse();
-    //         setGroupToCanvas(true);
-    //     }
-
-    //     if(imageGroup === true){
-    //         addImageToGroupAndSetGroupToCanvas();
-    //     } 
-    // }, [imageGroup]);
-
 
     // select tool effect
     useEffect(() => {
@@ -1092,6 +1144,7 @@ function CanvasApp() {
     const handleAddLayer = async() => {
         dispatch(addLayer(userUid));
         let newId;
+        let newZindex;
         const calculateNewLayerId = (layers) => {
             if (!Array.isArray(layers) || layers.length === 0) {
                 return 1;
@@ -1102,13 +1155,22 @@ function CanvasApp() {
                 return availableIds[0];
             }
         };
+        const calculateZindex = (layers) => {
+            const ifZindex0 =  layers.find((layer) => layer.zIndex === 0);
+            if(!ifZindex0){
+                return 0;
+            } else {
+                return layers.length;
+            }
+        };
         newId = calculateNewLayerId(layers);
+        newZindex = calculateZindex(layers);
         const newGroup = new fabric.Group([], {
             width:canvas.width,
             height:canvas.height,
             fill: 'transparent',
             groupId: newId,
-            zIndex: (newId - 1),
+            zIndex: newZindex,
             owner: userUid,
             visible: true,
             erasable: true
@@ -1117,6 +1179,7 @@ function CanvasApp() {
         await newGroup.moveTo(newId - 1);
         handleSelectLayer(newId);
         setGroupToCanvas(true);
+        setImmediate(true);
         return newId;
     }
     
@@ -1142,24 +1205,31 @@ function CanvasApp() {
     }
     
     const handleDeleteLayer = async (id) => {
-        if(layerEdit === true){
-            const updatedLayers = layers.filter(layer => layer.id !== id);
-            const updatedSelectedLayer = updatedLayers[0];
+        if(layerEdit === true && layers.length > 1){
             dispatch(deleteLayer(id));
-            dispatch(selectLayer(updatedSelectedLayer.id));
-    
+            const updatedLayers = layers.filter(layer => layer.id !== selectedLayerId);
+            const updatedSelectedLayer = updatedLayers[0];
             const groups = canvas.getObjects();
-            groups.forEach(v => {
+            const deletedLayer = layers.find(layer => layer.id === selectedLayerId);
+            const zIndex = deletedLayer.zIndex;
+            // 3 2 1 0 刪除1 indezx
+            await groups.forEach(v => {
                 if (v.groupId === id && v.type === 'group') {
                     canvas.remove(v);
                     canvas.renderAll();
+                }else if(v.zIndex > zIndex && v.type === 'group'){
+                    const newZindex = v.zIndex - 1;
+                    dispatch(setNewIndexForDelete(v.zIndex, newZindex));
+                    v.zIndex = newZindex;
                 }
+
                 if (v.groupId === updatedSelectedLayer.id && v.type === 'group'){
                     setGroup(v);
                 }
             })
             console.log('setGroupToCanvas');
-            setGroupToCanvas(true);
+            setDeleteToDb(true);
+            setImmediate(true);
         }
     }
 
@@ -1170,7 +1240,8 @@ function CanvasApp() {
             const objs = canvas.getObjects();
             const changeLayerZindex = layerZindex - 1; 
             const changeLayer = objs.find((obj) => obj.zIndex === changeLayerZindex);
-            if(changeLayer && changeLayer.zIndex !== 0){
+            if(changeLayer){
+                setChangeLayer(changeLayer.groupId);
                 dispatch(setLayerIndex(layerZindex, changeLayerZindex));
                 objs.forEach((obj) => {
                     if(obj.type === 'group' && obj.zIndex === layerZindex && obj.groupId === selectedLayerId){
@@ -1181,8 +1252,10 @@ function CanvasApp() {
                         obj.zIndex = layerZindex;
                     }
                 })
+                setGroupToCanvasForLayer(true);
+                setImmediate(true);
             }
-            setGroupToCanvas(true);
+
         }
     }
 
@@ -1194,6 +1267,7 @@ function CanvasApp() {
             const changeLayerZindex = layerZindex + 1; 
             const changeLayer = objs.find((obj) => obj.zIndex === changeLayerZindex);
             if(changeLayer){
+                setChangeLayer(changeLayer.groupId);
                 dispatch(setLayerIndex(layerZindex, changeLayerZindex));
                 objs.forEach((obj) => {
                     if(obj.type === 'group' && obj.groupId === selectedLayerId){
@@ -1206,10 +1280,11 @@ function CanvasApp() {
                         console.log( obj.groupId , ' move to ', layerZindex );
                     }
                 })
+                setGroupToCanvasForLayer(true);
+                setImmediate(true);
             }
-            setGroupToCanvas(true);
+
         }
-    
     }
 
     // download canvas
@@ -1221,11 +1296,22 @@ function CanvasApp() {
         downloadLink.click();
     }
 
+    const handleCopyRoomId = () => {
+        navigator.clipboard.writeText(roomId)
+        .then(() => {
+            alert('Already copied Room ID!');
+        })
+        .catch((error) => {
+            console.error('Failed to copy Room ID to clipboard:', error);
+        });
+    }
+
     return <div className={styles.canvasContainer} onWheel={handleWheel} ref={canvasContainerRef} 
                 onMouseDown={handleMouseDownForDrag}onMouseMove={handleMouseMoveForDrag} onMouseUp={handleMouseUpForDrag}>
                     <div className={styles.upperEditList}>
                         <div className={styles.saveBtnContainer}>
                             <button className={styles.btnDownload} onClick={downloadCanvas}>Download Image</button>
+                            <button className={styles.btnDownload} onClick={handleCopyRoomId}>Room ID {roomId}</button>
                         </div>
                     </div>
                     <div className={styles.layerLists}>
@@ -1233,13 +1319,13 @@ function CanvasApp() {
                             <button className={styles.btn} onClick={handleAddLayer}>
                                 <AiFillFileAdd className={styles.btnImage}/>
                             </button>
-                            {selectedLayerId !== 1 && layerEdit && <button className={styles.btn} onClick={() => handleLayerMoveUp(selectedLayerId)}>
+                            {layerEdit && <button className={styles.btn} onClick={() => handleLayerMoveUp(selectedLayerId)}>
                                 <FaAngleDoubleUp size={20} />
                             </button>}
-                            {selectedLayerId !== 1 && layerEdit &&  <button className={styles.btn} onClick={() => handleLayerMoveDown(selectedLayerId)}>
+                            {layerEdit &&  <button className={styles.btn} onClick={() => handleLayerMoveDown(selectedLayerId)}>
                                 <FaAngleDoubleDown size={20} className={styles.btnImage}/>
                             </button>}
-                            {selectedLayerId !== 1 && layerEdit && <button className={styles.btn} onClick={() => handleDeleteLayer(selectedLayerId)}>
+                            {layers.length > 1 && layerEdit && <button className={styles.btn} onClick={() => handleDeleteLayer(selectedLayerId)}>
                                 <AiFillDelete className={styles.btnImage}/>
                             </button>}
                         </div>
@@ -1270,7 +1356,6 @@ function CanvasApp() {
                         </div>
                     </div>
                 <input style={{display: 'none'}} type="file" id="upload" accept="image/*" />
-                
                 <div style={{ transform: `scale(${zoom}) translate(${dragPosition.x}px, ${dragPosition.y}px)`, transformOrigin: `${zoomPositon}` }}>
                     <canvas className={styles.canvas} ref={canvasRef}  />
                 </div>
