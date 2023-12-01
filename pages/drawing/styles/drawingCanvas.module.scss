@@ -9,7 +9,7 @@ $second: #fff;
 $hovoer: #ebf5f7;
 $border: #358be0;
 $font: #2570e8;
-$back: #d3d8e0;
+$back: rgb(246, 246, 246);
 
 .canvasContainer {
     display: flex;
@@ -156,6 +156,7 @@ $back: #d3d8e0;
     .canvas {
         width: auto;
         height: auto;
+        border: 1px solid #6b6b6b;
     }
 }
 
