@@ -159,7 +159,7 @@ $back: rgb(246, 246, 246);
             .icon {
                 text-align: left;
                 display: flex;
-                align-items: start;
+                align-items: flex-start;
             }
             .leftArrow{
                 color: $primary;
