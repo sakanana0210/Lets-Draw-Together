@@ -82,6 +82,11 @@ $back: rgb(246, 246, 246);
     }
 }
 
+@media screen and (max-width: 360px) {
+    .container{
+        width: 360px;
+    }
+}
 
 
 

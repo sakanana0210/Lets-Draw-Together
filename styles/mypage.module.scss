@@ -159,6 +159,49 @@ $back: rgb(246, 246, 246);
 
 }
 
+@media screen and (max-width: 1200px) {
+    .mainSection{
+        .roomsContainer {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+}
+
+@media screen and (max-width: 950px) {
+    .mainSection{
+        .roomsContainer {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .mainSection{
+        .roomsContainer {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+}
+
+@media screen and (max-width: 470px) {
+    .mainSection{
+        .roomsContainer {
+            display: block;
+            .roomContainer{
+                display: block;
+                margin: 20px auto;
+                width: 250px;
+                height: 200px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 360px) {
+    .container{
+        width: 360px;
+    }
+}
 
 
 
