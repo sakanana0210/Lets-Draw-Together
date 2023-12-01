@@ -82,7 +82,7 @@ $third: #6b6b6b;
         background-color: #f9f9f9;
         min-width: 160px;
         border: 1px solid #ddd;
-        z-index: 1;
+        z-index: 99;
     }
     
     .dropdown div {
@@ -96,7 +96,6 @@ $third: #6b6b6b;
         align-items: center;
         cursor: pointer;
         background-color: #fff;
-        z-index: 0;
         box-shadow: -5px 5px 5px rgba(0,0,0,0.1);
     }
 

@@ -337,7 +337,7 @@ $back: rgb(246, 246, 246);
                     width: 100%;
                     display: flex;
                     justify-content: center;
-
+                    margin-bottom: 10px;
                     .leftArrow{
                         color: $primary;
                     }
@@ -354,6 +354,7 @@ $back: rgb(246, 246, 246);
                 .icon {
                     width: 100%;
                     display: flex;
+                    margin-bottom: 10px;
                 }
                 .leftArrow{
                     color: $primary;
@@ -491,7 +492,7 @@ $back: rgb(246, 246, 246);
             width: 100%;
             display: flex;
             justify-content: center;
-
+            margin-bottom: 10px;
             .leftArrow{
                 color: $primary;
             }
