@@ -86,9 +86,9 @@ function ChatRoom() {
         <div className={styles.chatRoomContainer}>
             <div className={styles.ChatRoomViewContainer} >
                 <button className={styles.ChatRoomViewBtn} onClick={() => setChatRoomView(!chatRoomView)} 
-                    style={{ borderBottom: chatRoomView ? '1px solid #000' : 'none'}}
+                    style={{ borderBottom: '1px solid ##358be0'}}
                 >
-                    {chatRoomView ? < AiOutlineCaretDown size={24} /> : (<><span>Chat Room</span><AiOutlineCaretUp size={24} /></>)}
+                    {chatRoomView ? < AiOutlineCaretDown size={24} /> : (<><span>Chat Room</span><AiOutlineCaretUp  className={styles.buttomImg} size={24} /></>)}
                 </button>
             </div>
             <div className={styles.messagesListContainer} style={{ display: chatRoomView ? 'block' : 'none' }}>

@@ -33,7 +33,7 @@ function ToolDetails() {
                 <span className={styles['tool-title']}>◆ size</span>
                 <div className={`${styles['brush-size-controller']} ${styles['size-controller']}`}>
                     <input value={localBrushSize} onChange={changeBrushSize} type="range" id="brushSizeSlider" min="1" max="100" 
-                        style={{ background: `linear-gradient(to right, #949494 0%, #949494 ${localBrushSize}%, white ${localBrushSize}%, white 100%)` }}
+                        style={{ background: `linear-gradient(to right, #d1dced  0%, #d1dced  ${localBrushSize}%, white ${localBrushSize}%, white 100%)` }}
                     />
                     <span className={styles['tool-title']}>{localBrushSize}</span>
                 </div>
@@ -41,7 +41,7 @@ function ToolDetails() {
                 <span className={styles['tool-title']}>◆ opacity</span>
                 <div className={`${styles['opacity-controller']} ${styles['size-controller']}`}>
                     <input value={localBrushOpacity} onChange={changeBrushhOpacity} type="range" id="brushOpacitySlider" min="1" max="100" 
-                        style={{ background: `linear-gradient(to right, #949494 0%, #949494 ${localBrushOpacity}%, white ${localBrushOpacity}%, white 100%)` }}
+                        style={{ background: `linear-gradient(to right, #d1dced  0%, #d1dced  ${localBrushOpacity}%, white ${localBrushOpacity}%, white 100%)` }}
                     />
                     <span className={styles['tool-title']}>{localBrushOpacity}%</span>
                 </div>
@@ -63,14 +63,14 @@ function ToolDetails() {
                 <span className={styles['tool-title']}>◆ size</span>
                 <div className={`${styles['pencil-size-controller']} ${styles['size-controller']}`}>
                     <input value={localPencilSize} onChange={changePencilSize} type="range" id="pencilSizeSlider" min="1" max="100" 
-                        style={{ background: `linear-gradient(to right, #949494 0%, #949494 ${localPencilSize}%, white ${localPencilSize}%, white 100%)` }}
+                        style={{ background: `linear-gradient(to right, #d1dced 0%, #d1dced ${localPencilSize}%, white ${localPencilSize}%, white 100%)` }}
                     />
                     <span className={styles['tool-title']}>{localPencilSize}</span>
                 </div>
                 <span className={styles['tool-title']}>◆ opacity</span>
                 <div className={`${styles['opacity-controller']} ${styles['size-controller']}`}>
                     <input value={localPencilOpacity} onChange={changePencilOpacity} type="range" id="pencilOpacitySlider" min="1" max="100" 
-                        style={{ background: `linear-gradient(to right, #949494 0%, #949494 ${localPencilOpacity}%, white ${localPencilOpacity}%, white 100%)` }}
+                        style={{ background: `linear-gradient(to right, #d1dced 0%, #d1dced ${localPencilOpacity}%, white ${localPencilOpacity}%, white 100%)` }}
                     />
                     <span className={styles['tool-title']}>{localPencilOpacity}%</span>
                 </div>
@@ -87,7 +87,7 @@ function ToolDetails() {
                 <span className={styles['tool-title']}>◆ size</span>
                 <div className={`${styles['eraser-size-controller']} ${styles['size-controller']}`}>
                     <input value={localEraserSize} onChange={changeEraserSize} type="range" id="eraserSizeSlider" min="1" max="100" 
-                        style={{ background: `linear-gradient(to right, #949494 0%, #949494 ${localEraserSize}%, white ${localEraserSize}%, white 100%)` }}
+                        style={{ background: `linear-gradient(to right, #d1dced  0%, #d1dced  ${localEraserSize}%, white ${localEraserSize}%, white 100%)` }}
                     />
                     <span className={styles['tool-title']}>{localEraserSize}</span>
                 </div>

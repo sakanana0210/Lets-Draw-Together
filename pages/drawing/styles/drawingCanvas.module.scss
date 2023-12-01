@@ -1,46 +1,68 @@
-$primary: #c4c4c4;
-$hovoer: #ededed;
-$border: #666666;
-$selected: #949494;
-$back: rgb(246, 246, 246);
+// $primary: #c4c4c4;
+// $hovoer: #ededed;
+// $border: #666666;
+// $selected: #949494;
+// $back: rgb(246, 246, 246);
+
+$primary: #358be0;
+$second: #fff;
+$hovoer: #ebf5f7;
+$border: #358be0;
+$font: #2570e8;
+$back: #d3d8e0;
 
 .canvasContainer {
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: $back;
-    width: calc(100vw - 240px);
+    width: 100%;
     height: calc(100vh - 62px);
     overflow: hidden;
     position: relative;
     .upperEditList {
         position: absolute;
         top: 5px;
-        left: 5px;
+        display: flex;
+        left: 0;
         z-index: 50;
-        .btnDownload {
-            text-align: center;
-            height: 50px;
-            width: 80px;
-            border: solid 1px #000;
-            margin: 3px;
-            cursor: pointer;
-            border-radius: 3px;
-            background-color: $primary;
+        .saveBtnContainer{
+            width: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            .btnDownload {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                height: 50px;
+                overflow: hidden;
+                width: 160px;
+                border: solid 2px $primary;
+                cursor: pointer;
+                background-color: $second;
+                color: $font;
+                font-weight: 700;
+                border-radius: 5px;
+                margin-left: 5px;
+            }
+            .btnDownload:hover{
+                background-color: $hovoer;
+            }
         }
-        .btnDownload:hover{
-            background-color: $hovoer;
-        }
+
     }
     .layerLists {
         position: absolute;
-        top: 0px;
-        right: 5px;
+        top: 5px;
+        right: 0px;
         z-index: 40;
         width: 180px;
-        border: 1px solid #000;
+        border: 2px solid $primary;
+        border-radius: 5px;
+        overflow: hidden;
         .btnContainer {
-            background-color: $primary;
+            background-color: $second;
             display: flex;
             justify-content: space-between;
         }
@@ -57,23 +79,27 @@ $back: rgb(246, 246, 246);
                 width: 20px;
                 height: 20px;
                 margin-top: 3px;
+                color: $primary;
             }
         }
         .btn:hover{
             background-color: $hovoer;
         }
         .layer {
-            background-color: $primary;
+            background-color: $second;;
             padding: 5px 0;
-            border-top: 1px solid #000;
+            border-top: 1px solid $border;
             display: flex;
             align-items: center;
+            color: #6b6b6b;
+            font-weight: 500;
+            font-size: 14px;
             justify-content: space-around;
         }
         .layerImg{
             width: 60px;
             height: 30px;
-            border: 1px solid rgba(0,0,0,0.5);
+            border: 1px solid #6b6b6b;
             object-fit: cover;
             background-color: #fff;
         }
@@ -83,19 +109,21 @@ $back: rgb(246, 246, 246);
             .layerOwner{
                 width: 100%;
                 height: 100%;
-                background-color: #000;
+                background-color: $primary;
             }
         }
         .layerViewContainer {
             .layerViewBtn {
                 justify-content: center;
                 width: 100%;
-                height: 32px;
+                height: 36px;
                 border: none;
                 cursor: pointer;
                 background-color: $primary;
                 display: flex;
                 align-items: center;
+                color: $second;
+                font-weight: 700;
             }
         }
     }
@@ -109,15 +137,20 @@ $back: rgb(246, 246, 246);
             width: 50px;
             text-align: center;
             margin: 0 2px;
+            color: $primary;
+            font-weight: 500;
         }
         .zoomPercentBtn {
             border: none;
             cursor: pointer;
-            background-color: #fff;
+            background-color: $primary;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .btnImage{
+            color: $second;
         }
     }
     .canvas {

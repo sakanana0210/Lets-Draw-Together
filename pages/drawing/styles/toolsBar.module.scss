@@ -1,16 +1,23 @@
-$primary: #c4c4c4;
-$hovoer: #ededed;
-$border: #666666;
-$selected: #949494;
+// $primary: #c4c4c4;
+// $hovoer: #ededed;
+// $border: #666666;
+// $selected: #949494;
+$primary: #fff;
+$second: #358be0;
+$hovoer: #ebf5f7;
+$border: #358be0;
+$selected: #d1dced;
 
 .toolsbar-container {
     width: 40px;
-    height: calc(100vh - 62px);
+    height: calc(100vh - 72px);
     background-color: $primary;
     border: $border 2px solid;
-    border-top: none;
     border-right: none;
     display: block;
+    margin-top: 5px;
+    margin-left: 5px;
+    border-radius: 5px 0 0 5px;
     .tool {
         width: 30px;
         height: 30px;
@@ -24,6 +31,7 @@ $selected: #949494;
             height: 80%;
             margin: auto;
             background-size: cover;
+            color: $second;
         }
     }
     .tool:hover{

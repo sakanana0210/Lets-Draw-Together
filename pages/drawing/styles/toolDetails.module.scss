@@ -1,27 +1,38 @@
-$primary: #c4c4c4;
-$border: #666666;
-$selected: #949494;
+// $primary: #c4c4c4;
+// $border: #666666;
+// $selected: #949494;
+$primary: #fff;
+$second: #358be0;
+$hovoer: #ebf5f7;
+$border: #358be0;
+$selected: #d1dced;
+$font: #6b6b6b;
 
 .tooldetails-container {
     width: 200px;
-    height: calc(100vh - 262px);
+    height: calc(100vh - 272px);
     padding: 10px;
     background-color: $primary;
     border: $border 2px solid;
+    // border-radius: 0 0 5px 0;
     border-top: none;
+    color: $second;
+    font-weight: 700;
     .size-controller > input{
         appearance: none;
         width: 75%;
         height: 10px;
         width: 135px;
-        border: 1px black solid;
+        border: 1px $border solid;
+        border-radius: 5px;
         background-color: $selected;
         &::-webkit-slider-thumb {
             appearance: none;
-            width: 10px;
+            width: 18px;
             height: 18px;
+            border-radius: 5px;
             background-color: rgba(255,255,255,1);
-            border: 1px black solid;
+            border: 1px $border solid;
         }
                 // &::-moz-range-thumb{
     
@@ -43,6 +54,8 @@ $selected: #949494;
         .tool-title{
             width: 10px;
             font-size: 16px;
+            color: $font;
+            font-weight: 500;
         }
     }
     

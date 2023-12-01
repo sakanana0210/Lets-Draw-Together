@@ -1,5 +1,9 @@
-$primary: #c4c4c4;
-$border: #666666;
+// $primary: #c4c4c4;
+// $border: #666666;
+$primary: #fff;
+$border: #358be0;
+$font: #6b6b6b;
+
 // $prefixes: -webkit-, -moz-, -ms-, -o-, '';
 .color-picker-container {
     width: 200px;
@@ -8,7 +12,9 @@ $border: #666666;
     padding-top: 15px;
     background-color: $primary;
     border: $border 2px solid;
-    border-top: none;
+    // border-radius: 0 5px 0 0;
+    overflow: hidden;
+    margin-top: 5px;
 }
 
 .color-picker-container-top {
@@ -21,7 +27,7 @@ $border: #666666;
         margin-top:80px;
         margin-left: 10px;
         margin-bottom: 5px;
-        border: $border 1px solid;
+        border: $font 1px solid;
     }
 }
 
@@ -36,6 +42,8 @@ $border: #666666;
     .hsv-title{
         width: 10px;
         font-size: 16px;
+        color: $font;
+        font-weight: 500;
     }
 }
 
@@ -44,7 +52,8 @@ $border: #666666;
     appearance: none;
     width: 75%;
     height: 8px;
-    border: 1px black solid;
+    border: 1px $font solid;
+    border-radius: 5px;
     background: linear-gradient(to right, 
         red 0%, 
         yellow 17%, 
@@ -58,7 +67,8 @@ $border: #666666;
         width: 10px;
         height: 18px;
         background-color: rgba(255,255,255,0.7);
-        border: 1px black solid;
+        border-radius: 3px;
+        border: 1px $font solid;
     }
             // &::-moz-range-thumb{
 
@@ -78,14 +88,16 @@ $border: #666666;
     appearance: none;
     width: 75%;
     height: 8px;
-    border: 1px black solid;
+    border: 1px $font solid;
+    border-radius: 5px;
     background: black;
     &::-webkit-slider-thumb {
         appearance: none;
         width: 10px;
         height: 18px;
         background-color: rgba(255,255,255,0.7);
-        border: 1px black solid;
+        border-radius: 3px;
+        border: 1px $font solid;
     }
             // &::-moz-range-thumb{
 
@@ -105,7 +117,8 @@ $border: #666666;
     appearance: none;
     width: 75%;
     height: 8px;
-    border: 1px black solid;
+    border: 1px $font solid;
+    border-radius: 5px;
     background: linear-gradient(to right, 
     black 0%, 
     white 100%);
@@ -114,7 +127,8 @@ $border: #666666;
         width: 10px;
         height: 18px;
         background-color: rgba(255,255,255,0.7);
-        border: 1px black solid;
+        border-radius: 3px;
+        border: 1px $font solid;
     }
     // &::-moz-range-thumb{
 

@@ -1299,7 +1299,7 @@ function CanvasApp() {
     const handleCopyRoomId = () => {
         navigator.clipboard.writeText(roomId)
         .then(() => {
-            alert('Already copied Room ID!');
+            alert('Successfully copied Room ID!');
         })
         .catch((error) => {
             console.error('Failed to copy Room ID to clipboard:', error);
@@ -1310,8 +1310,8 @@ function CanvasApp() {
                 onMouseDown={handleMouseDownForDrag}onMouseMove={handleMouseMoveForDrag} onMouseUp={handleMouseUpForDrag}>
                     <div className={styles.upperEditList}>
                         <div className={styles.saveBtnContainer}>
-                            <button className={styles.btnDownload} onClick={downloadCanvas}>Download Image</button>
-                            <button className={styles.btnDownload} onClick={handleCopyRoomId}>Room ID {roomId}</button>
+                            <div className={styles.btnDownload} onClick={handleCopyRoomId}>Room ID {roomId}</div>
+                            <div className={styles.btnDownload} onClick={downloadCanvas}>Download Image</div>
                         </div>
                     </div>
                     <div className={styles.layerLists}>
@@ -1320,7 +1320,7 @@ function CanvasApp() {
                                 <AiFillFileAdd className={styles.btnImage}/>
                             </button>
                             {layerEdit && <button className={styles.btn} onClick={() => handleLayerMoveUp(selectedLayerId)}>
-                                <FaAngleDoubleUp size={20} />
+                                <FaAngleDoubleUp className={styles.btnImage} size={20} />
                             </button>}
                             {layerEdit &&  <button className={styles.btn} onClick={() => handleLayerMoveDown(selectedLayerId)}>
                                 <FaAngleDoubleDown size={20} className={styles.btnImage}/>
@@ -1334,7 +1334,7 @@ function CanvasApp() {
                             <div
                                 key={layer.id}
                                 className={styles.layer}
-                                style={{ backgroundColor: selectedLayerId === layer.id ? '#949494' : '' , display: layerView ? 'flex' : 'none' }}
+                                style={{ backgroundColor: selectedLayerId === layer.id ? '#d1dced' : '' , display: layerView ? 'flex' : 'none' }}
                             >
                                 <button className={styles.btn} onClick={() => handleSetLayerVisibility(layer.id, !layer.visible)}>
                                     {layer.visible ? <AiFillEye className={styles.btnImage}/> : <AiFillEyeInvisible className={styles.btnImage}/>}
@@ -1349,9 +1349,9 @@ function CanvasApp() {
 
                         <div className={styles.layerViewContainer} >
                             <button className={styles.layerViewBtn} onClick={() => setLayerView(!layerView)} 
-                                style={{ borderTop: layerView ? '1px solid #000' : 'none'}}
+                                style={{ borderTop: layerView ? '1px solid #358be0' : 'none'}}
                             >
-                                {layerView ? <AiOutlineCaretUp size={24} /> : (<><span>Layer</span><AiOutlineCaretDown size={24} /></>)}
+                                {layerView ? <AiOutlineCaretUp className={styles.btnImage} size={24} /> : (<><span>Layer</span><AiOutlineCaretDown className={styles.btnImage} size={24} /></>)}
                             </button>
                         </div>
                     </div>
@@ -1360,9 +1360,9 @@ function CanvasApp() {
                     <canvas className={styles.canvas} ref={canvasRef}  />
                 </div>
                 <div className={styles.zoomPercent}>
-                    <button className={styles.zoomPercentBtn} onClick={handleZoomDown}><AiOutlineMinusCircle size={22}/></button>
+                    <button className={styles.zoomPercentBtn} onClick={handleZoomDown}><AiOutlineMinusCircle className={styles.btnImage} size={22}/></button>
                     <div className={styles.zoomPercentDisplay}>{parseInt(zoom * 100, 10)}%</div>
-                    <button className={styles.zoomPercentBtn} onClick={handleZoomUp}><AiOutlinePlusCircle size={22} /></button>
+                    <button className={styles.zoomPercentBtn} onClick={handleZoomUp}><AiOutlinePlusCircle className={styles.btnImage} size={22} /></button>
                 </div>
                 {/* <div className={styles.preview}>
                     <button>整個畫布預覽:</button>

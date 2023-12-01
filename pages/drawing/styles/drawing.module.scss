@@ -1,17 +1,31 @@
-$primary: #c4c4c4;
-$border: #666666;
-$back: rgb(246, 246, 246);
+// $primary: #c4c4c4;
+// $border: #666666;
+// $back: #d3d8e0;
+
+$back: #d3d8e0;
+$primary: #358be0;
+$second: #fff;
 
 .App {
-    .header {
-        background-color: $primary;
-        height: 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: $border 2px solid;
-    }
     .body {
         display: flex;
+        background-color: $back;
+        .left-arrow{
+            width: 30px;
+            margin-top: 5px;
+            height: calc(100vh - 72px);
+            background-color: $primary;
+            border-radius: 0 5px 5px 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            .btnImage{
+                color: $second;
+                margin: auto;
+            }
+        }
+        .right-div{
+            display: block;
+        }
     }
 }
