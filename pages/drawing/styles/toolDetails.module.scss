@@ -57,6 +57,17 @@ $font: #6b6b6b;
             color: $font;
             font-weight: 500;
         }
+        .addNewBtn {
+            list-style: none;
+            font-size: 14px;
+            color: $font;
+            border-radius: 5px;
+            border: 1px $border solid;
+            background-color: $primary;
+            height: 30px;
+            width: 100%;
+            font-weight: 500;
+        }
     }
     
 }
