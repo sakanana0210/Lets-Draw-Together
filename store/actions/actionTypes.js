@@ -23,3 +23,4 @@ export const DONE_NEW_TEXT = 'DONE_NEW_TEXT';
 export const SET_NEW_IMAGE = 'SET_NEW_IMAGE';
 export const DONE_NEW_IMAGE = 'DONE_NEW_IMAGE';
 export const SET_ROOM_ID = 'SET_ROOM_ID';
+export const SET_HEIGHT_REDUCER = 'SET_HEIGHT_REDUCER';

@@ -7,9 +7,10 @@ $primary: #358be0;
 $second: #fff;
 
 .App {
+    background-color: $back;
+    height: 100vh;
     .body {
         display: flex;
-        background-color: $back;
         .left-arrow{
             width: 30px;
             margin-top: 5px;
@@ -26,6 +27,7 @@ $second: #fff;
         }
         .right-div{
             display: block;
+            height: calc(100vh - 72px);
         }
     }
 }

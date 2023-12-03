@@ -17,7 +17,8 @@ $back: rgb(246, 246, 246);
     justify-content: center;
     background-color: $back;
     width: 100%;
-    height: calc(100vh - 62px);
+    min-height: 400px;
+    height: 100%;
     overflow: hidden;
     position: relative;
     .upperEditList {
@@ -56,8 +57,8 @@ $back: rgb(246, 246, 246);
         position: absolute;
         top: 5px;
         right: 0px;
-        z-index: 40;
-        width: 180px;
+        z-index: 200;
+        width: auto;
         border: 2px solid $primary;
         border-radius: 5px;
         overflow: hidden;
@@ -95,6 +96,7 @@ $back: rgb(246, 246, 246);
             font-weight: 500;
             font-size: 14px;
             justify-content: space-around;
+            width: 180px;
         }
         .layerImg{
             width: 60px;
@@ -124,6 +126,7 @@ $back: rgb(246, 246, 246);
                 align-items: center;
                 color: $second;
                 font-weight: 700;
+                width: 180px;
             }
         }
     }
@@ -160,5 +163,95 @@ $back: rgb(246, 246, 246);
     }
 }
 
+.upperEditListSmall {
+    display: none;
+}
+
+.upperEditListSmallDropdown{
+    display: none;
+}
+
+.layerViewContainerSmall {
+    display: none;
+}
+
+@media screen and (max-width: 800px) {
+    .canvasContainer {
+        .upperEditList{
+            display: none;
+        }
+
+        .upperEditListSmall{
+            position: absolute;
+            top: 5px;
+            display: flex;
+            left: 10px;
+            z-index: 50;
+            cursor: pointer;
+            color: $primary;
+            background-color: $second;
+            border-radius: 5px;
+            border: $border 2px solid;
+        }
+    
+        .upperEditListSmallDropdown {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 45px;
+            left: 5px;
+            min-width: 160px;
+            z-index: 100;
+            div {
+                padding: 12px 12px;
+                text-decoration: none;
+                height: 40px;
+                color: $primary;
+                font-weight: 700;
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                background-color: #fff;
+                border: $border 2px solid;
+                border-radius: 5px;
+                margin: 5px;
+            }
+        }
+        .layerViewContainerSmall {
+            display: block;
+            .layerViewBtn {
+                justify-content: center;
+                width: 100%;
+                height: auto;
+                border: none;
+                cursor: pointer;
+                background-color: $primary;
+                display: flex;
+                align-items: center;
+                color: $second;
+                font-weight: 700;
+                .btnImage {
+                    height: 36px;
+                }
+                .btnSmall {
+                    height: 30px;
+                    color: $primary;
+                    background-color: $second;
+                }
+            }
+
+        }
+
+        .layerViewContainer {
+            display: none;
+        }
+    }
+}
 
 
+@media screen and (max-width: 360px) {
+    .canvasContainer{
+        width: 360px;
+    }
+}

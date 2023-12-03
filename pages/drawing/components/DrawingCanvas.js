@@ -6,7 +6,9 @@ import styles  from '../styles/drawingCanvas.module.scss'
 import {rgbToHsv} from '../../../utils/rgbToHsv.js'
 import {addRoomIdToPlayCanvas, addRoomIdToOwnCanvas} from '../../../utils/addRoomIdToDbUser.js'
 import { fabric } from 'fabric-with-erasing';
+import { IoIosSave } from "react-icons/io";
 import { FaAngleDoubleDown, FaAngleDoubleUp} from 'react-icons/fa';
+import { IoLayers } from "react-icons/io5";
 import { AiOutlinePlusCircle, AiOutlineMinusCircle, AiFillEye, AiFillEyeInvisible, AiFillDelete, AiFillFileAdd, AiOutlineCaretDown, AiOutlineCaretUp } from 'react-icons/ai';
 import { selectLayer, addLayer, deleteLayer, setLayerVisibility, setExistedLayer, setLayerIndex, setNewIndexForDelete } from '../../../store/actions/layerActionsCreator.js';
 import { doc, query, limit, collection, addDoc, setDoc, serverTimestamp, getDoc, getDocs, updateDoc, onSnapshot, deleteDoc } from "firebase/firestore";
@@ -50,6 +52,8 @@ function CanvasApp() {
     const [updateCanvasToDB, setUpdateCanvasToDB] = useState(false);
     const [groupToCanvasForLayer, setGroupToCanvasForLayer] = useState(false);
     const [changeLayer, setChangeLayer] = useState(null);
+    const [isUpperEditListOpen, setIsUpperEditListOpen] = useState(false);
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
     let initialLoad = true;
     let layers = useSelector((state) => state.layer.layers);
     layers = layers.sort((a, b) => b.zIndex - a.zIndex);
@@ -66,7 +70,12 @@ function CanvasApp() {
         const interval = setInterval(() => {
             setTimerFlag(true);
         }, 5000);
-    
+        const initialWidth = window.innerWidth;
+        const initialZoom = initialWidth / 1200 * 0.75;
+        const minZoom = 0.5;
+        const maxZoom = 10;
+        const clampedZoom = Math.min(maxZoom, Math.max(minZoom, initialZoom));
+        setZoom(clampedZoom);
         return () => {
             clearInterval(interval);
         };
@@ -108,8 +117,8 @@ function CanvasApp() {
                         const loadCanvasFromJson = async (jsonString) => {
                             try {
                             const canvas  = new fabric.Canvas(canvasRef.current, {
-                                width: 800,
-                                height: 400,
+                                width: 1200,
+                                height: 600,
                                 isDrawingMode: true,
                                 selection: false,
                             });
@@ -209,8 +218,8 @@ function CanvasApp() {
                     try {
                         const newCanvas  = new fabric.Canvas(canvasRef.current, {
                             backgroundColor: 'white',
-                            width: 800,
-                            height: 400,
+                            width: 1200,
+                            height: 600,
                             isDrawingMode: true,
                             selection: false,
                         });
@@ -479,8 +488,8 @@ function CanvasApp() {
         if ((canvas && loadCanvasDone === true && timerFlag === true )|| (canvas && loadCanvasDone === true && immediateFlag === true) ) {
             const loadCanvasFromJson = async (jsonString) => {
                 const newCanvas  = new fabric.Canvas(canvasRef.current, {
-                    width: 800,
-                    height: 400,
+                    width: 1200,
+                    height: 600,
                     isDrawingMode: true,
                     selection: false,
                 });
@@ -670,8 +679,6 @@ function CanvasApp() {
             };
         }
     }, [loadCanvasDone, layers, timerFlag, immediateFlag]);
-
-
 
     // handle text tool
     const addText = async () => {
@@ -1306,7 +1313,13 @@ function CanvasApp() {
         });
     }
 
-    return <div className={styles.canvasContainer} onWheel={handleWheel} ref={canvasContainerRef} 
+
+
+    const handleToggleUpperEditList = () => {
+        setIsUpperEditListOpen(!isUpperEditListOpen);
+    };
+
+    return <div className={styles.canvasContainer} onWheel={handleWheel} ref={canvasContainerRef}
                 onMouseDown={handleMouseDownForDrag}onMouseMove={handleMouseMoveForDrag} onMouseUp={handleMouseUpForDrag}>
                     <div className={styles.upperEditList}>
                         <div className={styles.saveBtnContainer}>
@@ -1314,6 +1327,15 @@ function CanvasApp() {
                             <div className={styles.btnDownload} onClick={downloadCanvas}>Download Image</div>
                         </div>
                     </div>
+                    <div className={styles.upperEditListSmall} onClick={handleToggleUpperEditList}>
+                        <IoIosSave  size={30}/>
+                    </div>
+                        {isUpperEditListOpen && (
+                            <div className={styles.upperEditListSmallDropdown}>
+                                <div className={styles.btnDownload} onClick={handleCopyRoomId}>Room ID {roomId}</div>
+                                <div className={styles.btnDownload} onClick={downloadCanvas}>Download Image</div>
+                            </div>
+                        )}
                     <div className={styles.layerLists}>
                         <div className={styles.btnContainer} style={{ display: layerView ? 'flex' : 'none' }}>
                             <button className={styles.btn} onClick={handleAddLayer}>
@@ -1354,7 +1376,20 @@ function CanvasApp() {
                                 {layerView ? <AiOutlineCaretUp className={styles.btnImage} size={24} /> : (<><span>Layer</span><AiOutlineCaretDown className={styles.btnImage} size={24} /></>)}
                             </button>
                         </div>
+
+                        <div className={styles.layerViewContainerSmall} >
+                            <button className={styles.layerViewBtn} onClick={() => setLayerView(!layerView)} 
+                                style={{ borderTop: layerView ? '1px solid #358be0' : 'none'}}
+                            >
+                                {layerView ? <AiOutlineCaretUp className={styles.btnImage} size={24} /> 
+                                : (<div className={styles.btnSmall}>
+                                    <IoLayers  size={30}/></div>)}
+                            </button>
+                        </div>
+
                     </div>
+
+
                 <input style={{display: 'none'}} type="file" id="upload" accept="image/*" />
                 <div style={{ transform: `scale(${zoom}) translate(${dragPosition.x}px, ${dragPosition.y}px)`, transformOrigin: `${zoomPositon}` }}>
                     <canvas className={styles.canvas} ref={canvasRef}  />

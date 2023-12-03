@@ -5,6 +5,7 @@ import styles  from '../styles/chatRoom.module.scss'
 import { doc, collection, query, orderBy, addDoc, setDoc, serverTimestamp, getDoc, getDocs, updateDoc, onSnapshot, ref } from "firebase/firestore";
 import {db} from '../../../firebase.js';
 import {AiOutlineCaretDown, AiOutlineCaretUp } from 'react-icons/ai';
+import { IoChatbubbleEllipses } from "react-icons/io5";
 
 function ChatRoom() {
     const dispatch = useDispatch();
@@ -89,6 +90,15 @@ function ChatRoom() {
                     style={{ borderBottom: '1px solid ##358be0'}}
                 >
                     {chatRoomView ? < AiOutlineCaretDown size={24} /> : (<><span>Chat Room</span><AiOutlineCaretUp  className={styles.buttomImg} size={24} /></>)}
+                </button>
+            </div>
+            <div className={styles.ChatRoomViewContainerSmall} >
+                <button className={styles.ChatRoomViewBtn} onClick={() => setChatRoomView(!chatRoomView)} 
+                    style={{ borderBottom: '1px solid ##358be0'}}
+                >
+                {chatRoomView ? <AiOutlineCaretDown className={styles.btnImage} size={24} /> 
+                : (<div className={styles.btnSmall}>
+                    <IoChatbubbleEllipses   size={30}/></div>)}
                 </button>
             </div>
             <div className={styles.messagesListContainer} style={{ display: chatRoomView ? 'block' : 'none' }}>

@@ -15,8 +15,8 @@ $back: rgb(246, 246, 246);
     right: 5px;
     bottom: 5px;
     position: absolute;
-    z-index: 50;
-    width: 300px;
+    z-index: 600;
+    width: auto;
     background-color: #fff;
     border: 2px solid $border;
     border-radius: 5px;
@@ -30,6 +30,8 @@ $back: rgb(246, 246, 246);
     }
     .messagesList {
         height: 250px;
+        width: auto;
+        min-width: 250px;
         overflow-y: scroll;
         border-bottom: 1px solid $border;
         div {
@@ -40,6 +42,7 @@ $back: rgb(246, 246, 246);
         }
     }
     .ChatRoomViewContainer {
+        width: 300px;
         .ChatRoomViewBtn {
             justify-content: center;
             width: 100%;
@@ -52,6 +55,9 @@ $back: rgb(246, 246, 246);
             display: flex;
             align-items: center;
         }
+    }
+    .ChatRoomViewContainerSmall {
+        display: none;
     }
     .messagesInputContainer {
         height: 50px;
@@ -82,6 +88,44 @@ $back: rgb(246, 246, 246);
         button:hover{
             background-color: $hovoer;
             color: $font;
+        }
+    }
+}
+
+
+
+@media screen and (max-width: 800px) {
+    .chatRoomContainer {
+        .ChatRoomViewContainer{
+            display: none;
+        }
+        .ChatRoomViewContainerSmall {
+            display: block;
+            .ChatRoomViewBtn {
+                justify-content: center;
+                width: 100%;
+                height: auto;
+                border: none;
+                cursor: pointer;
+                background-color: $primary;
+                display: flex;
+                align-items: center;
+                color: $second;
+                font-weight: 700;
+                .btnImage {
+                    height: 36px;
+                }
+                .btnSmall {
+                    height: 30px;
+                    color: $primary;
+                    background-color: $second;
+                }
+            }
+
+        }
+
+        .layerViewContainer {
+            display: none;
         }
     }
 }

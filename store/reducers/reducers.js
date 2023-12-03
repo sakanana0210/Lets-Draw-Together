@@ -12,7 +12,8 @@ const initialState = {
     pencilOpacity: 100,
     newText: false,
     newImage: false,
-    roomId: ''
+    roomId: '',
+    windowHeight: 600
 };
 
 export const canvasReducer = (state = initialState, action) => {
@@ -43,6 +44,15 @@ switch (action.type) {
     default:
     return state;
 }
+};
+
+export const heightReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case "SET_HEIGHT_REDUCER":
+        return { ...state, windowHeight: action.payload};
+        default:
+        return state;
+    }
 };
 
 export const brushReducer = (state = initialState, action) => {

@@ -103,3 +103,8 @@ export const setroomId =  (roomId) => ({
     type: actionTypes.SET_ROOM_ID,
     payload: roomId
 });
+
+export const setWindowHeight =  (windowHeight) => ({
+    type: actionTypes.SET_HEIGHT_REDUCER,
+    payload: windowHeight
+});
