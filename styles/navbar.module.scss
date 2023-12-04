@@ -4,6 +4,8 @@ $third: #6b6b6b;
 
 .navbarListContanier{
     background-color: $primary;
+    min-width: 360px;
+    z-index: 999;
 }
 
 .navbarRightSmall {

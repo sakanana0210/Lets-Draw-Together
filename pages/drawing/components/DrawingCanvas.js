@@ -53,7 +53,6 @@ function CanvasApp() {
     const [groupToCanvasForLayer, setGroupToCanvasForLayer] = useState(false);
     const [changeLayer, setChangeLayer] = useState(null);
     const [isUpperEditListOpen, setIsUpperEditListOpen] = useState(false);
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
     let initialLoad = true;
     let layers = useSelector((state) => state.layer.layers);
     layers = layers.sort((a, b) => b.zIndex - a.zIndex);

@@ -13,6 +13,7 @@ import { HiMiniPaintBrush, HiPencil, HiEyeDropper} from 'react-icons/hi2';
 function ToolsBar() {
     const dispatch = useDispatch();
     const selectedTool = useSelector((state) => state.tool.selectedTool);
+    const windowHeight = useSelector((state) => state.brush.windowHeight);
     const moveRef = useRef(null);
     const brushRef = useRef(null);
     const pencilRef = useRef(null);
@@ -46,7 +47,7 @@ function ToolsBar() {
     }, [selectedTool]);
         
     return (
-        <div className={styles['toolsbar-container']}>
+        <div className={styles['toolsbar-container']} style={{ height: `${windowHeight - 72 }px` }}>
             <button className={styles.tool} ref={moveRef} onClick={() => handleToolClick('move')}>
                 <div className={`${styles['tool-img']}`}><FaRegHandPaper size={22} /></div>
             </button>

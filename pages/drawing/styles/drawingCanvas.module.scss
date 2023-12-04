@@ -56,7 +56,7 @@ $back: rgb(246, 246, 246);
     .layerLists {
         position: absolute;
         top: 5px;
-        right: 0px;
+        right: 5px;
         z-index: 200;
         width: auto;
         border: 2px solid $primary;
@@ -240,7 +240,6 @@ $back: rgb(246, 246, 246);
                     background-color: $second;
                 }
             }
-
         }
 
         .layerViewContainer {
@@ -250,8 +249,3 @@ $back: rgb(246, 246, 246);
 }
 
 
-@media screen and (max-width: 360px) {
-    .canvasContainer{
-        width: 360px;
-    }
-}

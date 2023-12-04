@@ -7,6 +7,7 @@ function ToolDetails() {
     const dispatch = useDispatch();
     const selectedTool = useSelector((state) => state.tool.selectedTool);
     const selectedBrushSize = useSelector((state) => state.brush.brushSize);
+    const windowHeight = useSelector((state) => state.brush.windowHeight);
     const selectedBrushOpacity = useSelector((state) => state.brush.brushOpacity);
     const selectedEraserSize = useSelector((state) => state.brush.eraserSize);
     const selectedPencilSize = useSelector((state) => state.brush.pencilSize);
@@ -29,7 +30,7 @@ function ToolDetails() {
             dispatch(setBrushOpacity(opacity));
         };
         return (
-            <div className={styles['tooldetails-container']}>
+            <div className={styles['tooldetails-container']} style={{ height: `${windowHeight - 272 }px` }}>
                 <span className={styles['tool-title']}>◆ Size</span>
                 <div className={`${styles['brush-size-controller']} ${styles['size-controller']}`}>
                     <input value={localBrushSize} onChange={changeBrushSize} type="range" id="brushSizeSlider" min="1" max="100" 
@@ -59,7 +60,7 @@ function ToolDetails() {
             dispatch(setPencilOpacity(opacity));
         };
         return (
-            <div className={styles['tooldetails-container']}>
+            <div className={styles['tooldetails-container']} style={{ height: `${windowHeight - 272 }px` }}>
                 <span className={styles['tool-title']}>◆ Size</span>
                 <div className={`${styles['pencil-size-controller']} ${styles['size-controller']}`}>
                     <input value={localPencilSize} onChange={changePencilSize} type="range" id="pencilSizeSlider" min="1" max="100" 
@@ -83,7 +84,7 @@ function ToolDetails() {
             dispatch(setEraserSize(size));
         };
         return (
-            <div className={styles['tooldetails-container']}>
+            <div className={styles['tooldetails-container']} style={{ height: `${windowHeight - 272 }px` }}>
                 <span className={styles['tool-title']}>◆ Size</span>
                 <div className={`${styles['eraser-size-controller']} ${styles['size-controller']}`}>
                     <input value={localEraserSize} onChange={changeEraserSize} type="range" id="eraserSizeSlider" min="1" max="100" 
@@ -98,7 +99,7 @@ function ToolDetails() {
             dispatch(setNewText());
         };
         return (
-            <div className={styles['tooldetails-container']}>
+            <div className={styles['tooldetails-container']} style={{ height: `${windowHeight - 272 }px` }}>
                 <span className={styles['tool-title']}>◆ Add</span>
                 <div className={`${styles['size-controller']}`}>
                     <button onClick={addText}  className={styles['addNewBtn']}>New Text</button>
@@ -110,7 +111,7 @@ function ToolDetails() {
             dispatch(setNewImage());
         };
         return (
-            <div className={styles['tooldetails-container']}>
+            <div className={styles['tooldetails-container']} style={{ height: `${windowHeight - 272 }px` }}>
                 <span className={styles['tool-title']}>◆ add</span>
                 <div className={`${styles['size-controller']}`}>
                     <button onClick={addImage}>New Image</button>
@@ -119,7 +120,7 @@ function ToolDetails() {
         );
     }
     return (
-        <div className={styles['tooldetails-container']}>
+        <div className={styles['tooldetails-container']} style={{ height: `${windowHeight - 272 }px` }}>
         </div>
     );
 }
