@@ -152,18 +152,9 @@ function CanvasApp() {
     
                             if(layerList.length !== 0){
                                 console.log('load layer');
-                            } else {
-                                const NewLayer = {
-                                    id: 1,
-                                    name: `Layer 1`,
-                                    visible: true,
-                                    zIndex: 0,
-                                    owner: userUid
-                                }
-                                layerList.push(NewLayer);
-                                setNewCanvas1Group(true);
                             }
                             dispatch(setExistedLayer(layerList));
+                            
                             return [canvas, layerList];
                         } catch (error) {
                             console.error('Error loading canvas from JSON:', error);
@@ -435,12 +426,6 @@ function CanvasApp() {
                     const canvasDataURL = canvas.toDataURL({ format: 'jpeg', quality: 0.1 });
                     const today = new Date();
                     const dateOnly = today.toISOString().split('T')[0];
-
-                    // const docOwnSnapshot = await getDoc(ownCanvasDocRef);
-                    // if (docOwnSnapshot.exists()) {
-                    //     await updateDoc(ownCanvasDocRef, { img: canvasDataURL });
-                    //     console.log('canvasDataURL set');
-                    // }
                     const ownCanvasCollectionRef = collection(db, 'users', userUid, 'ownCanvas');
                     const ownCanvasDocRef = doc(ownCanvasCollectionRef, roomId);
                     const playCanvasCollectionRef = collection(db, 'users', userUid, 'playCanvas');
@@ -451,10 +436,8 @@ function CanvasApp() {
                             const oldImg = docPlaySnapshot.data().img;
                             if(oldImg !== canvasDataURL){
                                 await updateDoc(playCanvasDocRef, { img: canvasDataURL, date: dateOnly, timestamp: serverTimestamp()});
-                                console.log('Canvas dataURL set successfully.');
+                                // console.log('Canvas dataURL set successfully.');
                             }
-                        } else {
-                            console.log('Document does not exist in playCanvas collection.');
                         }
 
                         const docOwnSnapshot = await getDoc(ownCanvasDocRef);
@@ -462,10 +445,8 @@ function CanvasApp() {
                             const oldImg = docOwnSnapshot.data().img;
                             if(oldImg !== canvasDataURL){
                                 await updateDoc(ownCanvasDocRef, { img: canvasDataURL, date: dateOnly, timestamp: serverTimestamp() });
-                                console.log('Canvas dataURL set successfully.');
+                                // console.log('Canvas dataURL set successfully.');
                             }
-                        } else {
-                            console.log('Document does not exist in playCanvas collection.');
                         }
 
                     } catch (error) {
@@ -1351,6 +1332,7 @@ function CanvasApp() {
                             </button>}
                         </div>
 
+                        <div className={styles.layersContainer}>
                         {layers.length > 0 && layers.map(layer => (
                             <div
                                 key={layer.id}
@@ -1367,6 +1349,7 @@ function CanvasApp() {
                                 </div>
                             </div>
                         ))}
+                        </div>
 
                         <div className={styles.layerViewContainer} >
                             <button className={styles.layerViewBtn} onClick={() => setLayerView(!layerView)} 
@@ -1398,12 +1381,6 @@ function CanvasApp() {
                     <div className={styles.zoomPercentDisplay}>{parseInt(zoom * 100, 10)}%</div>
                     <button className={styles.zoomPercentBtn} onClick={handleZoomUp}><AiOutlinePlusCircle className={styles.btnImage} size={22} /></button>
                 </div>
-                {/* <div className={styles.preview}>
-                    <button>整個畫布預覽:</button>
-                    <img src="preview" />
-                </div> */}
-                {/**/}
-                {/**/}
             </div>
 }
 export default CanvasApp;

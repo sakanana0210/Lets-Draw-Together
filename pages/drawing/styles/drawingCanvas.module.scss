@@ -8,7 +8,7 @@ $primary: #358be0;
 $second: #fff;
 $hovoer: #ebf5f7;
 $border: #358be0;
-$font: #2570e8;
+$font: #358be0;
 $back: rgb(246, 246, 246);
 
 .canvasContainer {
@@ -62,6 +62,24 @@ $back: rgb(246, 246, 246);
         border: 2px solid $primary;
         border-radius: 5px;
         overflow: hidden;
+        .layersContainer{
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        // .layersContainer::-webkit-scrollbar {
+        //     width: 16px;
+        // }
+        
+        // .layersContainer::-webkit-scrollbar-thumb {
+        //     background-color: $primary;
+        //     border-radius: 4px;
+        // }
+        
+        // .layersContainer::-webkit-scrollbar-track {
+        //     background-color: #d1dced;
+        // }
+
         .btnContainer {
             background-color: $second;
             display: flex;
@@ -115,9 +133,11 @@ $back: rgb(246, 246, 246);
             }
         }
         .layerViewContainer {
+            width: 100%;
             .layerViewBtn {
                 justify-content: center;
                 width: 100%;
+                min-width: 180px;
                 height: 36px;
                 border: none;
                 cursor: pointer;
@@ -126,7 +146,6 @@ $back: rgb(246, 246, 246);
                 align-items: center;
                 color: $second;
                 font-weight: 700;
-                width: 180px;
             }
         }
     }
@@ -241,6 +260,7 @@ $back: rgb(246, 246, 246);
                 }
             }
         }
+        
 
         .layerViewContainer {
             display: none;

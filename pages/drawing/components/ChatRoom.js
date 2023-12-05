@@ -53,6 +53,10 @@ function ChatRoom() {
                                 ...messageDoc.data(),
                             };
                             setMessages(prevMessages => [...prevMessages, newMessage]);
+                            const chatWindow = document.getElementById('messagesList');
+                            requestAnimationFrame(() => {
+                                chatWindow.scrollTop = chatWindow.scrollHeight;
+                            });
                         }
                     });
                 
@@ -102,7 +106,7 @@ function ChatRoom() {
                 </button>
             </div>
             <div className={styles.messagesListContainer} style={{ display: chatRoomView ? 'block' : 'none' }}>
-                <div  className={styles.messagesList}>
+                <div  className={styles.messagesList} id={'messagesList'}>
                     {messages.map((message) => (
                     <div key={message.id} className={styles.textContainer}>
                         <span style={{ fontWeight: 700 }}>{message.userName}: </span>

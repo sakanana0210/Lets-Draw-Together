@@ -20,7 +20,6 @@ function Drawing() {
         const handleResize = () => {
             if(windowHeight !== window.innerHeight){
                 dispatch(setWindowHeight(window.innerHeight));
-                console.log('window.innerHeight', window.innerHeight);
             }
         };
     
