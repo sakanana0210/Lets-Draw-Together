@@ -61,6 +61,7 @@ function CanvasApp() {
     const userUid = useSelector((state) => state.auth.loginUserUid);
     const userName = useSelector((state) => state.auth.loginUserName);
     const [timerFlag, setTimerFlag] = useState(true);
+    const [layerTimeFlag, setLayerTimeFlag] = useState(true);
     const [immediateFlag, setImmediate ] = useState(false);
 
     useEffect(() => {
@@ -71,6 +72,10 @@ function CanvasApp() {
         const interval = setInterval(() => {
             setTimerFlag(true);
         }, 5000);
+        const layerInterval = setInterval(() => {
+            setLayerTimeFlag(true);
+        }, 3000);
+
         const initialWidth = window.innerWidth;
         const initialZoom = initialWidth / 1200 * 0.75;
         const minZoom = 0.5;
@@ -79,6 +84,7 @@ function CanvasApp() {
         setZoom(clampedZoom);
         return () => {
             clearInterval(interval);
+            clearInterval(layerInterval);
         };
     }, []);
 
@@ -118,7 +124,6 @@ function CanvasApp() {
                             });
                         
                             for (const obj of objectsData) {
-                                console.log(newLayers);
                                 const theSameLayer = newLayers.find((layer) => layer.id === obj.groupId);
                                 if (theSameLayer) {
                                     obj.zIndex = theSameLayer.zIndex;
@@ -148,7 +153,6 @@ function CanvasApp() {
                             const idSet = new Set();
                             await canvas.loadFromJSON(jsonString, function() {
                             canvas.renderAll();
-                            console.log('Canvas loaded from JSON successfully');
                             }, function(object) {
                                 if (object.type === 'image' && object.getSrc) {
                                     object.setSrc(object.getSrc(), function() {
@@ -163,11 +167,6 @@ function CanvasApp() {
                             });
                             setCanvas(canvas);
                             setLoadCanvasDone(true);
-    
-                            if(layersJsonData.length !== 0){
-                                console.log('load layer');
-                            }
-                            
                             
                             return [canvas, layersJsonData];
                         } catch (error) {
@@ -211,8 +210,6 @@ function CanvasApp() {
                         setLayerImg();
                         if(canvasOwner !== userUid){
                             addRoomIdToPlayCanvas(roomId, userUid);
-                        }else {
-                            console.log('my room');
                         }
                         
                     }
@@ -251,9 +248,6 @@ function CanvasApp() {
                         setNewCanvas1Group(true);
                         setLoadCanvasDone(true);
                         addRoomIdToOwnCanvas(roomId, userUid);
-
-                        console.log('Document written info');
-                        console.log('user ID: ', userUid);
                     } catch (e) {
                         console.error('Error writing document: ', e);
                     }
@@ -266,11 +260,11 @@ function CanvasApp() {
     }, [roomId]);
 
     //test
-    useEffect(() => {
-        if(canvas){
-            console.log(layers);
-        }
-    }, [layers]);
+    // useEffect(() => {
+    //     if(canvas){
+    //         console.log(layers);
+    //     }
+    // }, [layers]);
 
     // create new room's 1st layer
     useEffect(() => {
@@ -330,8 +324,6 @@ function CanvasApp() {
         const updateCanvasInfo = async () => {
             if (canvas && groupToCanvas === true && layerEdit === true) {
                 if( (timerFlag === true || immediateFlag === true)){
-                    console.log('immediateFlag', immediateFlag);
-                    console.log('timerFlag', timerFlag);
                     const roomsCollection = collection(db, 'rooms');
                     const roomDocumentRef = doc(roomsCollection, roomId);
                     const canvasInfoCollection = collection(roomDocumentRef, 'canvasInfo');
@@ -350,7 +342,6 @@ function CanvasApp() {
                             }
                             const objectsDocRef = doc(objectsCollection, 'object' + selectedLayerId);
                             await setDoc(objectsDocRef, data);
-                            console.log(selectedLayerId, 'Selected objects JSON saved to Firestore.');
                         }
                         setGroupToCanvas(false);
                         setTimerFlag(false);
@@ -1187,52 +1178,57 @@ function CanvasApp() {
 
     // Layers
     const handleAddLayer = async() => {
-        dispatch(addLayer(userUid));
-        let newId;
-        let newZindex;
-        const calculateNewLayerId = (layers) => {
-            if (!Array.isArray(layers) || layers.length === 0) {
-                return 1;
-            } else {
-                const existingIds = layers.map(layer => layer.id);
-                const unusedIds = Array.from({ length: existingIds.length + 1 }, (_, index) => index + 1);
-                const availableIds = unusedIds.filter(id => !existingIds.includes(id));
-                return availableIds[0];
-            }
-        };
-
-        const calculateZindex = (layers) => {
-            let sortedLayers = layers.sort((a, b) => a.zIndex - b.zIndex) ;
-            let zIndex = 0;
-            for (let i = 0; i < sortedLayers.length; i++) {
-                if (sortedLayers[i].zIndex === zIndex) {
-                    zIndex++;
+        if(layerTimeFlag === true) {
+            dispatch(addLayer(userUid));
+            let newId;
+            let newZindex;
+            const calculateNewLayerId = (layers) => {
+                if (!Array.isArray(layers) || layers.length === 0) {
+                    return 1;
                 } else {
-                    break;
+                    const existingIds = layers.map(layer => layer.id);
+                    const unusedIds = Array.from({ length: existingIds.length + 1 }, (_, index) => index + 1);
+                    const availableIds = unusedIds.filter(id => !existingIds.includes(id));
+                    return availableIds[0];
                 }
-            }    
-            return zIndex;
-        };
-
-        newId = calculateNewLayerId(layers);
-        newZindex = calculateZindex(layers);
-        const newGroup = new fabric.Group([], {
-            width:canvas.width,
-            height:canvas.height,
-            fill: 'transparent',
-            groupId: newId,
-            zIndex: newZindex,
-            owner: userUid,
-            visible: true,
-            erasable: true
-        });
-        await canvas.add(newGroup);
-        await canvas.bringToFront(newGroup);
-        handleSelectLayer(newId);
-        setGroupToCanvas(true);
-        setGroupToCanvasForLayer(true);
-        setImmediate(true);
-        return newId;
+            };
+    
+            const calculateZindex = (layers) => {
+                let sortedLayers = layers.sort((a, b) => a.zIndex - b.zIndex) ;
+                let zIndex = 0;
+                for (let i = 0; i < sortedLayers.length; i++) {
+                    if (sortedLayers[i].zIndex === zIndex) {
+                        zIndex++;
+                    } else {
+                        break;
+                    }
+                }    
+                return zIndex;
+            };
+    
+            newId = calculateNewLayerId(layers);
+            newZindex = calculateZindex(layers);
+            const newGroup = new fabric.Group([], {
+                width:canvas.width,
+                height:canvas.height,
+                fill: 'transparent',
+                groupId: newId,
+                zIndex: newZindex,
+                owner: userUid,
+                visible: true,
+                erasable: true
+            });
+            await canvas.add(newGroup);
+            await canvas.bringToFront(newGroup);
+            handleSelectLayer(newId);
+            setGroupToCanvas(true);
+            setGroupToCanvasForLayer(true);
+            setImmediate(true);
+            setLayerTimeFlag(false);
+            return newId;
+        } else {
+            console.log('too often changed layer');
+        }
     }
     
     const handleSelectLayer = (id) => {
@@ -1257,7 +1253,7 @@ function CanvasApp() {
     }
     
     const handleDeleteLayer = async (id) => {
-        if(layerEdit === true && layers.length > 1){
+        if(layerEdit === true && layers.length > 1 && layerTimeFlag === true){
             const updatedLayers = layers.filter(layer => layer.id !== selectedLayerId);
             const updatedSelectedLayer = updatedLayers[0];
             const groups = canvas.getObjects();
@@ -1285,11 +1281,14 @@ function CanvasApp() {
 
             // dispatch(deleteLayer(id));
             setDeleteToDb(true);
+            setLayerTimeFlag(false);
+        } else {
+            console.log('too often changed layer');
         }
     }
 
     const handleLayerMoveDown = (selectedLayerId) => {
-        if(layerEdit === true){
+        if(layerEdit === true && layerTimeFlag === true){
             const layer = layers.find((layer) => layer.id === selectedLayerId);
             const layerZindex = layer.zIndex;
             const objs = canvas.getObjects();
@@ -1308,13 +1307,15 @@ function CanvasApp() {
                     }
                 })
                 setGroupToCanvasForLayer(true);
+                setLayerTimeFlag(false);
             }
-
+        } else {
+            console.log('too often changed layer');
         }
     }
 
     const handleLayerMoveUp = (selectedLayerId) => {
-        if(layerEdit === true){
+        if(layerEdit === true && layerTimeFlag === true){
             const layer = layers.find((layer) => layer.id === selectedLayerId);
             const layerZindex = layer.zIndex;
             const objs = canvas.getObjects();
@@ -1327,16 +1328,17 @@ function CanvasApp() {
                     if(obj.type === 'group' && obj.groupId === selectedLayerId){
                         canvas.bringForward(obj);
                         obj.zIndex = changeLayerZindex;
-                        console.log( obj.groupId , ' move to ', changeLayerZindex );
                     } 
                     else if (obj.type === 'group' && obj.zIndex === changeLayerZindex){
                         obj.zIndex = layerZindex;
-                        console.log( obj.groupId , ' move to ', layerZindex );
                     }
                 })
                 setGroupToCanvasForLayer(true);
+                setLayerTimeFlag(false);
             }
 
+        } else {
+            console.log('too often changed layer');
         }
     }
 
