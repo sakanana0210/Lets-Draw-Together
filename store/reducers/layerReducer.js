@@ -32,7 +32,8 @@ export const layerReducer = (state = initialState, action) => {
                 name: `Layer ${calculateNewLayerId(state.layers)}`,
                 visible: true,
                 zIndex: (calculateZindex(state.layers)),
-                owner: ownerId
+                owner: ownerId,
+                data: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
             };
             
             if (!Array.isArray(state.layers)) {
