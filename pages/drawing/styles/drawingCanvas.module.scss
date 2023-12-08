@@ -192,7 +192,15 @@ $back: rgb(246, 246, 246);
         .canvas {
             width: auto;
             height: auto;
+            position: absolute;
+            z-index: 50;
             // border: 1px solid #6b6b6b;
+        }
+        .canvasBackground {
+            width: auto;
+            height: auto;
+            position: absolute;
+            z-index: 20;
         }
     }
 }

@@ -900,20 +900,23 @@ function CanvasApp() {
                 canvas.getObjects().forEach((obj) => {
                     obj.evented = false;
                 });
-
-            } else if (selectedTool === 'layermove' && layerEdit === true){
+            }else if (selectedTool === 'layermove'  && layerEdit === true){
                 canvas.isDrawingMode = false;
                 canvas.selection = false;
                 const objects = canvas.getObjects();
                 objects.forEach((obj) => {
-                    if (obj.type === 'group' && obj.groupId === selectedLayerId) {
+                    if (obj.type === 'group' && obj.groupId === selectedLayerId && obj.owner === userUid) {
                         obj.evented = true;
                     } else if(obj.type === 'group' && obj.groupId !== selectedLayerId){
+                        obj.evented = false;
+                    } else if (obj.type === 'group' && obj.groupId === selectedLayerId && obj.owner !== userUid){
+                        obj.evented = false;
+                    } else {
                         obj.evented = false;
                     }
                 });
                 canvas.requestRenderAll();
-            }
+            };
 
             const handleMouseDown = (e) => {
                 if (selectedTool === 'eyedropper') {
@@ -1067,18 +1070,22 @@ function CanvasApp() {
                     });
                 }else if (layer.id === selectedLayerId && layer.visible === true && (selectedTool === 'brush' || selectedTool === 'pencil' || selectedTool === 'eraser')){
                     canvas.isDrawingMode = true;
-                }else if (layer.id === selectedLayerId && layer.visible === true && (selectedTool === 'layermove')){
+                }else if (layer.id === selectedLayerId && layerEdit === true && layer.visible === true && (selectedTool === 'layermove')){
                     canvas.isDrawingMode = false;
                     canvas.selection = false;
                     const objects = canvas.getObjects();
                     objects.forEach((obj) => {
-                        if (obj.type === 'group' && obj.groupId === selectedLayerId) {
+                        if (obj.type === 'group' && obj.groupId === selectedLayerId && obj.owner === userUid) {
                             obj.evented = true;
+                        } else if(obj.type === 'group' && obj.groupId !== selectedLayerId){
+                            obj.evented = false;
+                        } else if (obj.type === 'group' && obj.groupId === selectedLayerId && obj.owner !== userUid){
+                            obj.evented = false;
                         } else {
                             obj.evented = false;
                         }
                     });
-                    canvas.renderAll();
+                    canvas.requestRenderAll();
                 }
             });
 
@@ -1465,7 +1472,8 @@ function CanvasApp() {
                     {!loadCanvasDone && <div className={styles.canvasLoading}>
                         <BarLoader color="#358be0" loading={true} height={8} width={400} />
                     </div>}
-                    <canvas className={styles.canvas} ref={canvasRef}  />
+                    <canvas className={styles.canvas} ref={canvasRef} />
+                    <div className={styles.canvasBackground} style={{ backgroundColor: '#fff'}}></div>
                 </div>
                 <div className={styles.zoomPercent}>
                     <button className={styles.zoomPercentBtn} onClick={handleZoomDown}><AiOutlineMinusCircle className={styles.btnImage} size={22}/></button>
