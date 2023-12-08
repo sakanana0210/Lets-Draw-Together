@@ -47,7 +47,7 @@ function ToolsBar() {
     }, [selectedTool]);
         
     return (
-        <div className={styles['toolsbar-container']} style={{ height: `${windowHeight - 72 }px` }}>
+        <div className={styles['toolsbar-container']}>
             <button className={styles.tool} ref={moveRef} onClick={() => handleToolClick('move')}>
                 <div className={`${styles['tool-img']}`}><FaRegHandPaper size={22} /></div>
             </button>

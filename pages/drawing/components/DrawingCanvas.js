@@ -719,10 +719,10 @@ function CanvasApp() {
                 obj.evented = false;
             }
         });
+
     };
 
     const addToGroup = () => {
-        console.log('add to group');
         console.log(textLayer);
         const tempCanvas = new fabric.StaticCanvas("", {
                 width: canvas.width,
@@ -760,7 +760,7 @@ function CanvasApp() {
     }
 
     useEffect(() => {
-        if (newText === true && canvas && selectedTool === 'text') {
+        if (newText === true && canvas && selectedTool === 'text' && layerTimeFlag === true) {
             async function handleAsyncOperation() {
                 try {
 
@@ -782,12 +782,13 @@ function CanvasApp() {
             handleAsyncOperation();
             addText();
             setTextEditing(true);
+        } else {
+            dispatch(doneNewText());
         }
     }, [newText]);
 
     useEffect(() => {
         if (textEditing === true){
-            console.log('textEditing');
             const newColorString = `rgb(${selectedRGB[0]}, ${selectedRGB[1]}, ${selectedRGB[2]})`;
             const objects = canvas.getObjects();
             objects.forEach((obj) => {
@@ -816,15 +817,47 @@ function CanvasApp() {
         }
     }, [textLayer, selectedLayerId]);
 
+    // only layer owner can edit
+    useEffect(()=>{
+        if(canvas){
+            const layer = layers.find(layer => layer.id === selectedLayerId);
+            const layerOwner = layer.owner;
+            if(layerOwner === userUid){
+                setLayerEdit(true);
+            } else {
+                setLayerEdit(false);
+            }
+        }
+    }, [selectedLayerId])
+
+    // useEffect(()=>{
+    //     if(canvas){
+    //         if (layerEdit === false) {
+    //             canvas.isDrawingMode = false;
+    //             canvas.selection = false; 
+    //             canvas.forEachObject(obj => {
+    //                 obj.set({
+    //                     selectable: false,
+    //                     evented: false
+    //                 });
+    //             });
+    //         }
+    //     }
+    // }, [layerEdit])
+
     // select tool effect
     useEffect(() => {
         if (canvas) {
             if (layerEdit === false){
-                canvas.isDrawingMode = false;
-                canvas.selection = false;
                 canvas.getObjects().forEach((obj) => {
                     obj.evented = false;
                 });
+                canvas.isDrawingMode = false;
+                canvas.selection = false;
+                if(canvas.freeDrawingBrush){
+                    canvas.freeDrawingBrush.width = 0;
+                    canvas.freeDrawingBrush.color = 'rgba(0,0,0,0)';
+                } 
             }else if (selectedTool === 'brush' && layerEdit === true) {
                 canvas.isDrawingMode = true;
                 const colorString = `rgba(${selectedRGB[0]}, ${selectedRGB[1]}, ${selectedRGB[2]}, ${selectedBrushOpacity / 100})`;
@@ -868,6 +901,18 @@ function CanvasApp() {
                     obj.evented = false;
                 });
 
+            } else if (selectedTool === 'layermove' && layerEdit === true){
+                canvas.isDrawingMode = false;
+                canvas.selection = false;
+                const objects = canvas.getObjects();
+                objects.forEach((obj) => {
+                    if (obj.type === 'group' && obj.groupId === selectedLayerId) {
+                        obj.evented = true;
+                    } else if(obj.type === 'group' && obj.groupId !== selectedLayerId){
+                        obj.evented = false;
+                    }
+                });
+                canvas.requestRenderAll();
             }
 
             const handleMouseDown = (e) => {
@@ -1079,40 +1124,6 @@ function CanvasApp() {
 
     }, [layers, selectedLayerId, selectedTool]);
 
-    // only layer owner can edit
-    useEffect(()=>{
-        if(canvas){
-            const layer = layers.find(layer => layer.id === selectedLayerId);
-            const layerOwner = layer.owner;
-            if(layerOwner === userUid){
-                setLayerEdit(true);
-            } else {
-                setLayerEdit(false);
-            }
-        }
-    }, [selectedLayerId])
-
-    useEffect(()=>{
-        if(canvas){
-            if (layerEdit === false) {
-                canvas.isDrawingMode = false;
-                canvas.selection = false; 
-                canvas.forEachObject(obj => {
-                    obj.set({
-                        selectable: false,
-                        evented: false
-                    });
-                });
-            } else {
-                canvas.forEachObject(obj => {
-                    obj.set({
-                        evented: true
-                    });
-                });
-            }
-        }
-    }, [layerEdit])
-
     // whole canvas zoom up down
     const handleWheel = (e) => {
         const currentZoom = zoom;
@@ -1254,6 +1265,9 @@ function CanvasApp() {
     
     const handleDeleteLayer = async (id) => {
         if(layerEdit === true && layers.length > 1 && layerTimeFlag === true){
+            if(textEditing === true){
+                addToGroup();
+            }
             const updatedLayers = layers.filter(layer => layer.id !== selectedLayerId);
             const updatedSelectedLayer = updatedLayers[0];
             const groups = canvas.getObjects();
@@ -1289,6 +1303,9 @@ function CanvasApp() {
 
     const handleLayerMoveDown = (selectedLayerId) => {
         if(layerEdit === true && layerTimeFlag === true){
+            if(textEditing === true){
+                addToGroup();
+            }
             const layer = layers.find((layer) => layer.id === selectedLayerId);
             const layerZindex = layer.zIndex;
             const objs = canvas.getObjects();
@@ -1316,6 +1333,9 @@ function CanvasApp() {
 
     const handleLayerMoveUp = (selectedLayerId) => {
         if(layerEdit === true && layerTimeFlag === true){
+            if(textEditing === true){
+                addToGroup();
+            }
             const layer = layers.find((layer) => layer.id === selectedLayerId);
             const layerZindex = layer.zIndex;
             const objs = canvas.getObjects();

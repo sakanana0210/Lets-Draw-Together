@@ -39,25 +39,25 @@ function Drawing() {
     return (
         <div className={styles['App']}>
             <Navbar />
-            <div className={styles['body']} style={{ height: `${windowHeight - 62 }px` }}>
-                <div className={styles['tools-bar']} style={{ height: `${windowHeight - 62 }px` }}>
+            <div className={styles['body']} style={{ height: 'calc(100vh - 62px)' }}>
+                <div className={styles['tools-bar']}>
                             <ToolsBar />
                 </div>
                 {isOpen && (
-                    <div className={styles['left-div']} style={{ height: `${windowHeight - 62 }px` }}>
+                    <div className={styles['left-div']}>
                         <ColorPicker />
                         <ToolDetails />
                     </div>
                 )}
-                <div className={styles['left-arrow']} onClick={handleToggle} style={{ height: `${windowHeight - 72 }px` }}>
+                <div className={styles['left-arrow']} onClick={handleToggle} style={{ height: 'calc(100vh - 72px)' }}>
                     {isOpen ? 
                     (<AiOutlineCaretLeft className={styles.btnImage} size={24}/>) :
                     (<AiOutlineCaretRight className={styles.btnImage} size={24}/>)
                     }  
                 </div>
-                <div className={styles['right-div']} style={{ width: isOpen ? 'calc(100% - 275px)' : 'calc(100% - 75px)', height: `${windowHeight - 62}px`  }}>
+                <div className={styles['right-div']} style={{ width: isOpen ? 'calc(100% - 275px)' : 'calc(100% - 75px)', height: 'calc(100vh - 62px)'}}>
                     <CanvasApp/>
-                    <div className={styles['right-bottom-div']} style={{ height: `${windowHeight - 72 }px` }}>
+                    <div className={styles['right-bottom-div']} style={{ height: 'calc(100vh - 62px)' }}>
                         <ChatRoom />
                     </div>
                 </div>

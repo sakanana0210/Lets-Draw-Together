@@ -10,7 +10,7 @@ $font: #6b6b6b;
 
 .tooldetails-container {
     width: 200px;
-    // height: auto;
+    height: calc(100vh - 272px);
     min-height: 200px;
     padding: 10px;
     background-color: $primary;
