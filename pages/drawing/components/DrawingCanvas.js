@@ -322,7 +322,7 @@ function CanvasApp() {
     // handle canvasJSON to firebase db (ok)
     useEffect(() => {
         const updateCanvasInfo = async () => {
-            if (canvas && groupToCanvas === true && layerEdit === true) {
+            if (canvas && groupToCanvas === true) {
                 if( (timerFlag === true || immediateFlag === true)){
                     const roomsCollection = collection(db, 'rooms');
                     const roomDocumentRef = doc(roomsCollection, roomId);
