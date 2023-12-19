@@ -33,7 +33,7 @@ Let's Draw Together provides drawing services for online co-editing and supports
   
 ![Layer Management](https://raw.githubusercontent.com/sakanana0210/LetsPaintTogether/main/public/images/readme/allLayer.gif)  
   
-Layer preview, add layer, move layer up, move layer down, delete layer.  
+Layer preview, add layer, move layer up, move layer down, delete layer, layer visibility.  
 Users can only edit layers that belong to them.
   
   
