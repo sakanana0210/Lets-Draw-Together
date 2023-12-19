@@ -41,7 +41,7 @@ Users can only edit layers that belong to them.
   
 ![History Room Records](https://raw.githubusercontent.com/sakanana0210/LetsPaintTogether/main/public/images/readme/rooms.jpg)
   
-Creating and joining records of rooms. 
+Records of room creation and participation history.
     
 **(4)  Real-time Text Chat**
   
