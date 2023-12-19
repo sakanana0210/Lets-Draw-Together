@@ -71,10 +71,10 @@ function CanvasApp() {
 
         const interval = setInterval(() => {
             setTimerFlag(true);
-        }, 5000);
+        }, 1000);
         const layerInterval = setInterval(() => {
             setLayerTimeFlag(true);
-        }, 3000);
+        }, 1000);
 
         const initialWidth = window.innerWidth;
         const initialZoom = initialWidth / 1200 * 0.75;
