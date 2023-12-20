@@ -57,7 +57,7 @@ Records of room creation and participation history.
 | React |
 | Redux | 
 | Fabric.js |
-| Sass | 
+| SCSS | 
 | Next.js |
 | Firebase - Cloud Firestore | 
 | Firebase - Authentication |
