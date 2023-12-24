@@ -7,11 +7,10 @@ import { doc, collection, addDoc, setDoc, getDocs, query, orderBy} from "firebas
 import {db} from '../firebase.js';
 import { BarLoader } from "react-spinners";
 import { IoIosArrowDropleftCircle, IoIosArrowDroprightCircle} from 'react-icons/io'; 
+import { useAuth } from '../hooks/useAuth.js';
 
 const Mypage = () => {
-    const authenticated = useSelector((state) => state.auth.isAuthenticated);
-    const userUid = useSelector((state) => state.auth.loginUserUid);
-    const userName = useSelector((state) => state.auth.loginUserName);
+    const { authenticated, userUid, userName } = useAuth();
     const [ownCanvasID, setOwnCanvasID] = useState([]);
     const [loadDown, setLoddDown] =  useState(false);
     const router = useRouter();

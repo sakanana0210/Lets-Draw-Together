@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next"
+    "dev": "next",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -28,5 +29,8 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
     "sass": "^1.69.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

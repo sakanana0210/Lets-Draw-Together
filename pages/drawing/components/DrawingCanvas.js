@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { setRGB, setroomId, startPainting, stopPainting, doneNewText, doneNewImage, setSelectedTool, setBrushSize, setBrushOpacity } from '../../../store/actions/actionCreators.js';
 import styles  from '../styles/drawingCanvas.module.scss' 
-import {rgbToHsv} from '../../../utils/rgbToHsv.js'
 import {addRoomIdToPlayCanvas, addRoomIdToOwnCanvas} from '../../../utils/addRoomIdToDbUser.js'
 import { fabric } from 'fabric-with-erasing';
 import { IoIosSave } from "react-icons/io";
@@ -15,6 +14,8 @@ import { doc, query, limit, collection, addDoc, setDoc, serverTimestamp, getDoc,
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage} from '../../../firebase.js';
 import { BarLoader } from "react-spinners";
+import { useAuth } from '../../../hooks/useAuth.js';
+const { rgbToHsv } = require('../../../utils/rgbToHsv');
 
 function CanvasApp() {
     const dispatch = useDispatch();
@@ -57,9 +58,7 @@ function CanvasApp() {
     layers = layers.sort((a, b) => b.zIndex - a.zIndex);
     const router = useRouter();
     const { roomId } = router.query;
-    const authenticated = useSelector((state) => state.auth.isAuthenticated);
-    const userUid = useSelector((state) => state.auth.loginUserUid);
-    const userName = useSelector((state) => state.auth.loginUserName);
+    const { authenticated, userUid, userName } = useAuth();
     const [timerFlag, setTimerFlag] = useState(true);
     const [layerTimeFlag, setLayerTimeFlag] = useState(true);
     const [immediateFlag, setImmediate ] = useState(false);
@@ -259,13 +258,6 @@ function CanvasApp() {
         }
     }, [roomId]);
 
-    //test
-    // useEffect(() => {
-    //     if(canvas){
-    //         console.log(layers);
-    //     }
-    // }, [layers]);
-
     // create new room's 1st layer
     useEffect(() => {
         if (canvas && newCanvas1Group === true){
@@ -380,7 +372,6 @@ function CanvasApp() {
                     }
                     
                     await setDoc(layersDocRef, layerData);
-                    console.log('layers, set to db.');
                     setGroupToCanvasForLayer(false);
                 } catch (error) {
                     console.error('Error updating canvas info:', error);
@@ -401,13 +392,11 @@ function CanvasApp() {
                 const objectsCollection = collection(infoDocumentRef, 'objects');
                 const layersDocRef = doc(objectsCollection, 'layers');
                 try {
-                    console.log(selectedLayerId);
                     const updatedLayers = layers.filter(layer => layer.id !== selectedLayerId);
                     const updatedSelectedLayer = updatedLayers[0];
                     const objectDocumentRef = doc(objectsCollection, 'object' + selectedLayerId);
                     dispatch(selectLayer(updatedSelectedLayer.id));
                     await deleteDoc(objectDocumentRef);
-                    console.log(selectedLayerId, 'delete objects JSON saved to Firestore.');
                     const visibleLayers = updatedLayers.map(layer => {
                         return {
                             ...layer,
@@ -420,7 +409,6 @@ function CanvasApp() {
                         userUid: userUid
                     }
                     await setDoc(layersDocRef, layerData);
-                    console.log('layers, set to db.');
                     setDeleteToDb(false);
                 } catch (error) {
                     console.error('Error updating canvas info:', error);
@@ -476,9 +464,7 @@ function CanvasApp() {
                         const jsonString = doc['canvasJson'];
                         const jsonData = JSON.parse(jsonString);
                         const jsonGroupId = jsonData['groupId'];
-                        console.log('jsonGroupId', jsonGroupId);
                         if (change.type === 'modified') {
-                            console.log('修改文檔:', docId);
                             const addObjectsToGroup = async (jsonGroupId, jsonData) => {
                                 fabric.util.enlivenObjects(jsonData.objects, async function(objects) {
                                     const oldObjs = await canvas.getObjects();
@@ -505,15 +491,12 @@ function CanvasApp() {
                                             });
 
                                             matchingOldObj.set('eraser', enlivenedEraser);
-                                            console.log('new eraser');
-                                            console.log(matchingOldObj);
                                             
                                         } else if (!jsonData.eraser && oldEraser) {
                                             matchingOldObj.remove(oldEraser);
                                         }
                                         setLayerImg(matchingOldObj.groupId, matchingOldObj);
                                         canvas.requestRenderAll();
-                                        console.log(`成功更新群組 ${jsonGroupId} 的內容`);
                                     } else {
                                         console.error('無法找到指定的群組');
                                     }
@@ -522,7 +505,6 @@ function CanvasApp() {
                             addObjectsToGroup(jsonGroupId, jsonData);
                         }
                         else if (change.type === 'removed') {
-                            console.log('刪除文檔:', docId);
                             const removeAndAddForRemoved = async(jsonGroupId) => {
                                 const updatedLayers = layers.filter((layer) => layer.id !== jsonGroupId);
                                 const deletedLayer = layers.find(layer => layer.id === jsonGroupId);
@@ -533,26 +515,22 @@ function CanvasApp() {
                                         layer.zIndex = newZindex;
                                     }
                                 })
-                                console.log(updatedLayers);
                                 const oldObjs = await canvas.getObjects();
                                 const matchingoldObj = oldObjs.find(oldObj => oldObj.type === 'group' && oldObj.groupId === jsonGroupId);
                                 if(matchingoldObj){
                                     dispatch(setExistedLayer(updatedLayers));
                                     canvas.remove(matchingoldObj);
                                     canvas.renderAll();
-                                    console.log('已刪除！');
                                 }
                             }
                             removeAndAddForRemoved(jsonGroupId);
                             // removeAndadd();
                         }else if (change.type === 'added' && !layers.find((layer)=> layer.id === jsonGroupId)) {
-                            console.log('添加文檔:', docId);
                             const removeAndAddForAdded= async(jsonGroupId) => {
                                 const newId = jsonGroupId;
                                 const calculateZindex = () => {
                                     let sortedLayers = layers.sort((a, b) => a.zIndex - b.zIndex);
                                     let zIndex = 0;
-                                    console.log(sortedLayers);
                                     for (let i = 0; i < sortedLayers.length; i++) {
                                         if (sortedLayers[i].zIndex === zIndex) {
                                             zIndex++;
@@ -563,7 +541,6 @@ function CanvasApp() {
                                     return zIndex;
                                 };
                                 const newZindex = calculateZindex();
-                                console.log(newZindex);
                                 
                                 const newGroup = new fabric.Group([], {
                                     width:canvas.width,
@@ -586,7 +563,6 @@ function CanvasApp() {
                                 dispatch(setExistedLayer(newlayersList));
                                 await canvas.add(newGroup);
                                 await canvas.bringToFront(newGroup);
-                                console.log('成功添加圖層');
                             }
                             removeAndAddForAdded(jsonGroupId);
                             // removeAndadd();
@@ -595,12 +571,10 @@ function CanvasApp() {
                     } else if (doc['userUid'] !== userUid  && docId === 'layers'){
                         const jsonString = doc['layerJson'];
                         const newLayersList = JSON.parse(jsonString);
-                        console.log(newLayersList);
                         let changelayer;
                         let beChangedlayer;
                         if (change.type === 'modified' && newLayersList.length === layers.length) {
                             try{
-                                console.log('圖層zindex互換');
                                 newLayersList.map((newlayer) =>{
                                     const findOldlayer = layers.find((layer) => layer.id === newlayer.id);
                                     const oldZindex = findOldlayer.zIndex;
@@ -612,7 +586,6 @@ function CanvasApp() {
     
                                 const objs = canvas.getObjects();
                                 if(changelayer.zIndex > beChangedlayer.zIndex){
-                                    console.log(changelayer.id, 'should sendbak');
                                     objs.forEach((obj) => {
                                         if(obj.type === 'group' && obj.groupId === changelayer.id ){
                                             canvas.sendBackwards(obj);
@@ -623,7 +596,6 @@ function CanvasApp() {
                                         }
                                     })
                                 } else if (changelayer.zIndex < beChangedlayer.zIndex){
-                                    console.log(changelayer.id, 'should forward');
                                     objs.forEach((obj) => {
                                         if(obj.type === 'group' && obj.groupId === changelayer.id ){
                                             canvas.bringForward(obj);
@@ -672,7 +644,6 @@ function CanvasApp() {
                             const oldImg = docPlaySnapshot.data().img;
                             if(oldImg !== canvasDataURL){
                                 await updateDoc(playCanvasDocRef, { img: canvasDataURL, date: dateOnly, timestamp: serverTimestamp()});
-                                // console.log('Canvas dataURL set successfully.');
                             }
                         }
 
@@ -681,7 +652,6 @@ function CanvasApp() {
                             const oldImg = docOwnSnapshot.data().img;
                             if(oldImg !== canvasDataURL){
                                 await updateDoc(ownCanvasDocRef, { img: canvasDataURL, date: dateOnly, timestamp: serverTimestamp() });
-                                // console.log('Canvas dataURL set successfully.');
                             }
                         }
 
@@ -723,7 +693,6 @@ function CanvasApp() {
     };
 
     const addToGroup = () => {
-        console.log(textLayer);
         const tempCanvas = new fabric.StaticCanvas("", {
                 width: canvas.width,
                 height: canvas.height
@@ -773,7 +742,6 @@ function CanvasApp() {
                             obj.evented = false;
                         }
                     });
-                    console.log('Promise resolved with result:', resultID);
                 } catch (error) {
                     console.error('Promise rejected with error:', error);
                 }
@@ -935,7 +903,6 @@ function CanvasApp() {
             const handleSelectionClear = () => {
                 if (selectedTool === 'layermove') {
                     setGroupToCanvas(true);
-                    console.log('layer move');
                 };
             }
             canvas.on('mouse:down', handleMouseDown);
@@ -986,7 +953,6 @@ function CanvasApp() {
                             const layerImg = document.getElementById(string);
                             layerImg.src= previewDataURL;
                             dispatch(setExistedLayer(layers));
-                            console.log('setGroupToCanvas');
                             setGroupToCanvas(true);
                         } catch (e) {
                             console.error('error:', e);
@@ -1023,7 +989,6 @@ function CanvasApp() {
                             }
                         })
                     })
-                    console.log('setGroupToCanvas');
                     setGroupToCanvas(true);
                 }
 
@@ -1245,7 +1210,7 @@ function CanvasApp() {
             setLayerTimeFlag(false);
             return newId;
         } else {
-            console.log('too often changed layer');
+            return;
         }
     }
     
@@ -1287,7 +1252,6 @@ function CanvasApp() {
                     layer.zIndex = newZindex;
                 }
             })
-            console.log(updatedLayers);
             dispatch(setExistedLayer(updatedLayers));
 
             await groups.forEach(v => {
@@ -1304,7 +1268,7 @@ function CanvasApp() {
             setDeleteToDb(true);
             setLayerTimeFlag(false);
         } else {
-            console.log('too often changed layer');
+            return;
         }
     }
 
@@ -1334,7 +1298,7 @@ function CanvasApp() {
                 setLayerTimeFlag(false);
             }
         } else {
-            console.log('too often changed layer');
+            return;
         }
     }
 
@@ -1365,7 +1329,7 @@ function CanvasApp() {
             }
 
         } else {
-            console.log('too often changed layer');
+            return;
         }
     }
 

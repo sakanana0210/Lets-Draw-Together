@@ -1,20 +1,18 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useRouter } from 'next/router';
 import styles  from '../styles/chatRoom.module.scss' 
 import { doc, collection, query, orderBy, addDoc, setDoc, serverTimestamp, getDoc, getDocs, updateDoc, onSnapshot, ref } from "firebase/firestore";
 import {db} from '../../../firebase.js';
 import {AiOutlineCaretDown, AiOutlineCaretUp } from 'react-icons/ai';
 import { IoChatbubbleEllipses } from "react-icons/io5";
+import { useAuth } from '../../../hooks/useAuth.js';
 
 function ChatRoom() {
     const dispatch = useDispatch();
     const roomId = useSelector((state) => state.brush.roomId);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const authenticated = useSelector((state) => state.auth.isAuthenticated);
-    const userUid = useSelector((state) => state.auth.loginUserUid);
-    const userName = useSelector((state) => state.auth.loginUserName);
+    const { authenticated, userUid, userName } = useAuth();
     const [loadRoomDone, setLoadRoomDone] = useState(false);
     const [chatRoomView, setChatRoomView] = useState(false);
 

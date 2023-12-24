@@ -1,4 +1,4 @@
-export function rgbToHsv(r, g, b) {
+function rgbToHsv(r, g, b) {
     r /= 255;
     g /= 255;
     b /= 255;
@@ -29,3 +29,7 @@ export function rgbToHsv(r, g, b) {
     v = Math.round(v * 100); 
     return [h, s, v];
 }
+
+module.exports = {
+    rgbToHsv: rgbToHsv
+};

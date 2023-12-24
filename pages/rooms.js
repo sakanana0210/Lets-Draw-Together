@@ -5,11 +5,10 @@ import Navbar from '../components/Navbar';
 import styles from '../styles/signup.module.scss'; 
 import { doc, collection, addDoc, setDoc, getDocs} from "firebase/firestore";
 import {db} from '../firebase.js';
+import { useAuth } from '../hooks/useAuth.js';
 
 const Rooms = () => {
-    const authenticated = useSelector((state) => state.auth.isAuthenticated);
-    const userUid = useSelector((state) => state.auth.loginUserUid);
-    const userName = useSelector((state) => state.auth.loginUserName);
+    const { authenticated, userUid, userName } = useAuth();
     const [roomId, setRoomId] = useState('');
     const router = useRouter();
 

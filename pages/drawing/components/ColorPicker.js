@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setRGB, startPickColor, stopPickColor } from '../../../store/actions/actionCreators';
 import styles  from '../styles/colorPicker.module.scss' 
-import {hsvToRgb} from '../../../utils/hsvToRgb'
+const { hsvToRgb } = require('../../../utils/hsvToRgb');
 
 function ColorPicker() {
     const dispatch = useDispatch();

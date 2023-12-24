@@ -1,4 +1,4 @@
-export function hsvToRgb(hsv) {
+function hsvToRgb(hsv) {
     let h = hsv[0];
     let s = hsv[1];
     let v = hsv[2];
@@ -41,3 +41,7 @@ export function hsvToRgb(hsv) {
     let rgb = [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     return rgb;
 }
+
+module.exports = {
+    hsvToRgb: hsvToRgb
+};
